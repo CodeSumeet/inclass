@@ -1,24 +1,33 @@
-# Logs
-logs
+# Node.js dependencies
+node_modules/
+
+# Vite build output
+/dist
+/vite.config.ts
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+
+# Log files
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+# Editor and system files
 .DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+Thumbs.db
+.vscode/
+.idea/
+
+# Firebase Admin SDK Key (if using JSON file for authentication)
+firebase-admin-key.json
+
+# Tailwind CSS JIT files
+tailwindcss-jit-output.css
+
+# Temporary files
+*.swp
+*.swo
