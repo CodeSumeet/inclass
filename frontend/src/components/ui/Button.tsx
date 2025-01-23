@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         filled:
-          "text-white bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80",
+          "border border-black text-white bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80",
         outline: "border border-secondary text-secondary hover:bg-secondary/10",
       },
       size: {

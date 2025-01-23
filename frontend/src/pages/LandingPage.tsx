@@ -107,7 +107,7 @@ const LandingPage: FC<LandingPageProps> = () => {
         {/* Footer */}
         <footer className="py-12 mt-12 border-t border-gray-300">
           <p className="text-center text-gray-600">
-            &copy; 2024 Inclass. All rights reserved.
+            &copy; 2025 Inclass. All rights reserved.
           </p>
         </footer>
       </main>
