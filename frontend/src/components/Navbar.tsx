@@ -1,50 +1,64 @@
-import React, { useState } from "react";
-import InclassLogo from "../assets/inclasslogo.svg";
-import { Menu, X } from "lucide-react";
-import { Button } from "./ui/Button";
+import React, { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Menu, X } from "lucide-react";
+import InclassLogo from "../assets/inclasslogo.svg";
+import { Button } from "./ui/Button";
+
+const navItems = [
+  { label: "Features", href: "#features" },
+  { label: "How It Works", href: "#how-it-works" },
+  { label: "Pricing", href: "#pricing" },
+];
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
 
+  const toggleMenu = useCallback(() => setIsOpen((prev) => !prev), []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setIsOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <header className="w-full h-[68px] text-black bg-white border-b border-black relative">
+    <header className="w-full h-[68px] bg-white border-b border-black relative shadow-sm">
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
-        {/* Logo */}
-        <div className="flex items-center">
+        <Link
+          to="/"
+          className="flex items-center"
+        >
           <img
             src={InclassLogo}
             alt="Inclass Logo"
-            className="h-8"
+            className="inclass-logo h-8"
           />
           <span className="ml-2 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
             Inclass
           </span>
-        </div>
+        </Link>
 
-        {/* Desktop Menu */}
-        <nav className="hidden md:flex space-x-12">
-          <a
-            href="#features"
-            className="hover:text-secondary transition-colors"
-          >
-            Features
-          </a>
-          <a
-            href="#how-it-works"
-            className="hover:text-secondary transition-colors"
-          >
-            How It Works
-          </a>
-          <a
-            href="#pricing"
-            className="hover:text-secondary transition-colors"
-          >
-            Pricing
-          </a>
+        {/* Desktop Navigation */}
+        <nav
+          className="hidden md:flex space-x-10"
+          role="navigation"
+        >
+          {navItems.map(({ label, href }) => (
+            <a
+              key={href}
+              href={href}
+              className="text-gray-700 hover:text-secondary transition-all duration-200"
+            >
+              {label}
+            </a>
+          ))}
         </nav>
 
-        {/* Auth Buttons (Desktop) */}
+        {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center space-x-4">
           <Button
             variant="outline"
@@ -60,54 +74,74 @@ const Navbar: React.FC = () => {
           </Button>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden focus:outline-none"
-          onClick={() => setIsOpen(!isOpen)}
+          className="md:hidden focus:outline-none transition-transform"
+          onClick={toggleMenu}
+          aria-label="Toggle menu"
+          aria-expanded={isOpen ? "true" : "false"}
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          {isOpen ? (
+            <X
+              size={28}
+              className="text-primary"
+            />
+          ) : (
+            <Menu size={28} />
+          )}
         </button>
       </div>
 
-      {/* Mobile Menu (Sliding Effect) */}
-      <div
-        className={`absolute left-0 w-full bg-white border-t border-black flex flex-col items-center space-y-4 py-4 transition-all duration-300 ease-in-out ${
-          isOpen
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 -translate-y-5 pointer-events-none"
-        }`}
-      >
-        <a
-          href="#features"
-          className="hover:text-secondary transition-colors"
-        >
-          Features
-        </a>
-        <a
-          href="#how-it-works"
-          className="hover:text-secondary transition-colors"
-        >
-          How It Works
-        </a>
-        <a
-          href="#pricing"
-          className="hover:text-secondary transition-colors"
-        >
-          Pricing
-        </a>
-        <Link
-          to="/auth/sign-in"
-          className="px-4 py-2 text-secondary border border-secondary rounded-full hover:bg-secondary/10 transition-colors w-[80%] text-center"
-        >
-          Log In
-        </Link>
-        <Link
-          to="/auth/sign-up"
-          className="px-4 py-2 text-white rounded-full bg-gradient-to-r from-primary to-secondary hover:from-primary/80 hover:to-secondary/80 transition-colors w-[80%] text-center"
-        >
-          Sign Up
-        </Link>
-      </div>
+      {/* Mobile Menu */}
+      {isOpen && (
+        <>
+          <div
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-20 md:hidden"
+            onClick={toggleMenu}
+          />
+          <div
+            className={`absolute top-[68px] left-0 w-full bg-white border-t border-border flex flex-col items-center space-y-4 py-6 z-30 shadow-lg transition-transform transform ${
+              isOpen ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0"
+            }`}
+          >
+            {navItems.map(({ label, href }) => (
+              <a
+                key={href}
+                href={href}
+                className="text-gray-800 hover:text-secondary transition-all duration-200 text-lg"
+                onClick={toggleMenu}
+              >
+                {label}
+              </a>
+            ))}
+
+            <Button
+              variant="outline"
+              size="md"
+              className="w-[80%]"
+            >
+              <Link
+                to="/auth/sign-in"
+                onClick={toggleMenu}
+              >
+                Log In
+              </Link>
+            </Button>
+            <Button
+              variant="filled"
+              size="md"
+              className="w-[80%]"
+            >
+              <Link
+                to="/auth/sign-up"
+                onClick={toggleMenu}
+              >
+                Sign Up
+              </Link>
+            </Button>
+          </div>
+        </>
+      )}
     </header>
   );
 };

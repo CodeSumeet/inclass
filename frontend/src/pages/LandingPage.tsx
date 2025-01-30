@@ -1,18 +1,47 @@
+import { FC, memo } from "react";
 import { Button } from "../components/ui/Button";
 import Navbar from "../components/Navbar";
-import { FC } from "react";
 import {
   ArrowRight,
   BookOpen,
-  ChartNoAxesColumn,
+  LineChart,
   UsersRound,
   Video,
 } from "lucide-react";
 import livePreview from "../assets/livepreview.png";
 
-interface LandingPageProps {}
+const FeatureIcon = memo(({ Icon }: { Icon: JSX.Element }) => (
+  <div className="flex items-center justify-center w-16 h-16 text-black border border-black rounded-full">
+    {Icon}
+  </div>
+));
 
-const LandingPage: FC<LandingPageProps> = () => {
+const features = [
+  {
+    icon: <Video size={32} />,
+    title: "Live Classes",
+    description: "Seamless virtual classes with high-quality video and audio.",
+  },
+  {
+    icon: <BookOpen size={32} />,
+    title: "Interactive Assessments",
+    description: "Create and grade quizzes, assignments, and tests with ease.",
+  },
+  {
+    icon: <LineChart size={32} />,
+    title: "Progress Tracking",
+    description:
+      "Monitor student performance with detailed analytics and reports.",
+  },
+  {
+    icon: <UsersRound size={32} />,
+    title: "Collaborative Whiteboard",
+    description:
+      "Brainstorm and explain concepts with an interactive whiteboard.",
+  },
+];
+
+const LandingPage: FC = () => {
   return (
     <div className="w-full min-h-screen bg-background">
       <Navbar />
@@ -20,10 +49,10 @@ const LandingPage: FC<LandingPageProps> = () => {
       <main className="container mx-auto px-6 lg:px-12">
         {/* Hero Section */}
         <section className="py-16 md:py-24 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-black leading-tight">
+          <h1 className="text-4xl md:text-6xl font-extrabold text-black leading-tight">
             Transform Your Virtual Classroom Experience
           </h1>
-          <p className="text-lg md:text-xl text-black max-w-2xl mx-auto mt-4">
+          <p className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mt-4">
             Inclass combines the best of Google Classroom and Zoom to create an
             all-in-one solution for engaging, interactive online learning.
           </p>
@@ -42,10 +71,11 @@ const LandingPage: FC<LandingPageProps> = () => {
         </section>
 
         {/* Live Preview */}
-        <figure>
+        <figure className="w-full flex justify-center mt-8">
           <img
             src={livePreview}
-            alt="Live Preview"
+            alt="Live Class Preview"
+            className="w-full max-w-4xl rounded-lg shadow-lg transition-all hover:scale-105 duration-300"
           />
         </figure>
 
@@ -61,52 +91,23 @@ const LandingPage: FC<LandingPageProps> = () => {
             Everything you need to create an engaging virtual classroom.
           </p>
 
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {[
-              {
-                icon: <Video />,
-                title: "Live Classes",
-                description:
-                  "Conduct seamless virtual classes with high-quality video and audio.",
-              },
-              {
-                icon: <BookOpen />,
-                title: "Interactive Assessments",
-                description:
-                  "Create and grade quizzes, assignments, and tests with ease.",
-              },
-              {
-                icon: <ChartNoAxesColumn />,
-                title: "Progress Tracking",
-                description:
-                  "Monitor student performance with detailed analytics and reports.",
-              },
-              {
-                icon: <UsersRound />,
-                title: "Collaborative Whiteboard",
-                description:
-                  "Brainstorm ideas and explain concepts with an interactive digital whiteboard.",
-              },
-            ].map((feature, index) => (
+          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map(({ icon, title, description }, index) => (
               <div
                 key={index}
-                className="px-6 py-6 bg-white rounded-md flex flex-col items-center text-center border border-black"
+                className="px-6 py-8 bg-white rounded-xl flex flex-col items-center text-center border border-black shadow-md hover:shadow-lg transition-shadow duration-300"
               >
-                <div className="text-5xl text-center border border-black rounded-full p-4">
-                  {feature.icon}
-                </div>
-                <h3 className="text-center text-xl font-semibold mt-4">
-                  {feature.title}
-                </h3>
-                <p className="text-center mt-2">{feature.description}</p>
+                <FeatureIcon Icon={icon} />
+                <h3 className="text-xl font-semibold mt-4">{title}</h3>
+                <p className="text-gray-700 mt-2">{description}</p>
               </div>
             ))}
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="py-12 mt-12 border-t border-gray-300">
-          <p className="text-center text-gray-600">
+        <footer className="py-12 mt-12 border-t border-gray-300 text-center">
+          <p className="text-gray-600">
             &copy; 2025 Inclass. All rights reserved.
           </p>
         </footer>
