@@ -22,6 +22,9 @@ const authenticate = async (
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(token);
+    if (!decodedToken.role) {
+      return res.status(403).json({ message: "Forbidden: No role assigned" });
+    }
     req.user = decodedToken;
     next();
   } catch (error) {
@@ -30,4 +33,15 @@ const authenticate = async (
   }
 };
 
-export default authenticate;
+const authorizeRole = (allowedRoles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res
+        .status(403)
+        .json({ message: "Forbidden: Insufficient permissions" });
+    }
+    next();
+  };
+};
+
+export { authenticate, authorizeRole };
