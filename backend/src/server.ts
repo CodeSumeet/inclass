@@ -5,6 +5,7 @@ import morgan from "morgan";
 import dotenv from "dotenv";
 import prisma from "./config/db";
 import routes from "./routes";
+import authRouter from "./routes/auth.routes";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.use(morgan("dev"));
 
 // Routes
 app.use("/api", routes);
+
+app.use("/api/auth", authRouter);
 
 app.get("/", (req, res) => {
   res.send("Inclass API Running");

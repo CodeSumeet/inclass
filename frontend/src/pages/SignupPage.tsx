@@ -37,7 +37,9 @@ const SignupPage: FC = () => {
     try {
       const userCredential = await signUpWithEmail(
         formData.email,
-        formData.password
+        formData.password,
+        formData.firstName,
+        formData.lastName
       );
       setUser(userCredential.user);
       navigate("/dashboard");

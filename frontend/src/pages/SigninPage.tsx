@@ -117,7 +117,7 @@ const SigninPage: FC = () => {
           <Button
             fullWidth
             size="lg"
-            className="mt-4 hover:scale-105 active:scale-100"
+            className="mt-4"
             disabled={loading}
           >
             {loading ? "Signing in..." : "Sign In"}

@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  engineType = "library"
 }
 
 datasource db {
@@ -9,54 +8,45 @@ datasource db {
 }
 
 model User {
-  userId       String   @id @default(uuid())
-  firstName    String
-  lastName     String
-  email        String   @unique
-  passwordHash String
-  students     Student[]
-  teachers     Teacher[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-}
+  userId      String   @id
+  firstName   String
+  lastName    String
+  email       String   @unique
+  profilePic  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-model Student {
-  studentId    String       @id
-  user         User         @relation(fields: [studentId], references: [userId], onDelete: Cascade)
-  classrooms   StudentClassroom[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-}
-
-model Teacher {
-  teacherId    String       @id
-  user         User         @relation(fields: [teacherId], references: [userId], onDelete: Cascade)
-  classrooms   Classroom[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  enrollments Enrollment[]
+  classrooms  Classroom[] @relation("ClassroomOwner")
 }
 
 model Classroom {
-  classroomId  String           @id @default(uuid())
-  className    String
-  description  String
-  teacherId    String?          
-  teacher      Teacher?         @relation(fields: [teacherId], references: [teacherId], onDelete: SetNull)
-  classCode    String           @unique
-  banner       String?
-  students     StudentClassroom[]
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  code        String   @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ownerId     String
+  
+  owner       User     @relation(fields: [ownerId], references: [userId], name: "ClassroomOwner")
+  enrollments Enrollment[]
 }
 
-model StudentClassroom {
-  id           Int             @id @default(autoincrement())
-  studentId    String
-  classroomId  String
-  student      Student         @relation(fields: [studentId], references: [studentId], onDelete: Cascade)
-  classroom    Classroom       @relation(fields: [classroomId], references: [classroomId], onDelete: Cascade)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+model Enrollment {
+  id          String     @id @default(uuid())
+  userId      String
+  classroomId String
+  role        Role
+  createdAt   DateTime   @default(now())
 
-  @@unique([studentId, classroomId])
+  user       User       @relation(fields: [userId], references: [userId])
+  classroom  Classroom  @relation(fields: [classroomId], references: [id])
+
+  @@unique([userId, classroomId])
+}
+
+enum Role {
+  TEACHER
+  STUDENT
 }
