@@ -48,6 +48,25 @@ export const signUpWithEmail = async (
 export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
+    const user = result.user;
+
+    const firebaseUid = user.uid;
+    const email = user.email;
+    const firstName = user.displayName?.split(" ")[0];
+    const lastName = user.displayName?.split(" ")[1];
+
+    const { data } = await API.get(
+      `/auth/check-user-exists?firebaseUid=${firebaseUid}`
+    );
+
+    if (!data.exists) {
+      await API.post("/auth/sign-up", {
+        firebaseUid,
+        email,
+        firstName,
+        lastName,
+      });
+    }
 
     return {
       user: result.user,
