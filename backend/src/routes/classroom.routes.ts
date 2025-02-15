@@ -17,5 +17,10 @@ router.get(
   ClassroomController.getClassroomDetails
 );
 router.delete("/delete", authenticate, ClassroomController.deleteClassroom);
+router.delete(
+  "/remove-student",
+  authenticate,
+  ClassroomController.removeStudent
+);
 
 export default router;

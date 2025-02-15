@@ -48,3 +48,11 @@ export const deleteClassroom = asyncHandler(
     res.status(200).json({ message: "Classroom deleted successfully" });
   }
 );
+
+export const removeStudent = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { ownerId, classroomId, studentId } = req.body;
+    await ClassroomService.removeStudent(ownerId, classroomId, studentId);
+    res.status(200).json({ message: "Student removed successfully" });
+  }
+);

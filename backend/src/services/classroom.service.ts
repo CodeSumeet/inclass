@@ -69,10 +69,35 @@ export const deleteClassroom = async (classroomId: string, userId: string) => {
     where: { id: classroomId },
   });
   if (!classroom) throw new Error("Classroom not found");
-  if (classroom.ownerId !== userId) throw new Error("Unauthorized");
+  if (classroom.ownerId !== userId)
+    throw new Error("Unauthorized: Only the owner can delete this classroom");
 
   return prisma.classroom.update({
     where: { id: classroomId },
     data: { isDeleted: true },
+  });
+};
+
+export const removeStudent = async (
+  ownerId: string,
+  classroomId: string,
+  studentId: string
+) => {
+  const classroom = await prisma.classroom.findUnique({
+    where: { id: classroomId },
+  });
+  if (!classroom) throw new Error("Classroom not found");
+
+  if (classroom.ownerId !== ownerId)
+    throw new Error("Unauthorized: Only the owner can remove students");
+
+  const enrollment = await prisma.enrollment.findUnique({
+    where: { userId_classroomId: { userId: studentId, classroomId } },
+  });
+
+  if (!enrollment) throw new Error("Student is not enrolled in this classroom");
+
+  return prisma.enrollment.delete({
+    where: { userId_classroomId: { userId: studentId, classroomId } },
   });
 };
