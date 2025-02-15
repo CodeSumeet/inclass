@@ -23,12 +23,16 @@ model User {
 model Classroom {
   id          String   @id @default(uuid())
   name        String
+  section     String?
+  subject     String?
+  roomNo      String?
   description String?
   code        String   @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  isDeleted   Boolean  @default(false)
   ownerId     String
-  
+
   owner       User     @relation(fields: [ownerId], references: [userId], name: "ClassroomOwner")
   enrollments Enrollment[]
 }

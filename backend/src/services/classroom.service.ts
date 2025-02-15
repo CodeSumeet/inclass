@@ -1,0 +1,78 @@
+import { PrismaClient } from "@prisma/client";
+import { generateClassroomCode } from "../utils/generateCode";
+
+const prisma = new PrismaClient();
+
+export const createClassroom = async (
+  userId: string,
+  name: string,
+  section?: string,
+  subject?: string,
+  roomNo?: string,
+  description?: string
+) => {
+  let code: string = "";
+  let isUnique = false;
+
+  while (!isUnique) {
+    code = generateClassroomCode();
+    const existingClass = await prisma.classroom.findUnique({
+      where: { code },
+    });
+    if (!existingClass) isUnique = true;
+  }
+
+  return prisma.classroom.create({
+    data: {
+      name,
+      section,
+      subject,
+      roomNo,
+      description,
+      code,
+      ownerId: userId,
+    },
+  });
+};
+
+export const joinClassroom = async (userId: string, code: string) => {
+  const classroom = await prisma.classroom.findUnique({ where: { code } });
+  if (!classroom) throw new Error("Classroom not found");
+
+  const existingEnrollment = await prisma.enrollment.findUnique({
+    where: { userId_classroomId: { userId, classroomId: classroom.id } },
+  });
+  if (existingEnrollment)
+    throw new Error("User already enrolled in this classroom");
+
+  return prisma.enrollment.create({
+    data: { userId, classroomId: classroom.id, role: "STUDENT" },
+  });
+};
+
+export const getUserClassrooms = async (userId: string) => {
+  return prisma.enrollment.findMany({
+    where: { userId },
+    include: { classroom: true },
+  });
+};
+
+export const getClassroomDetails = async (classroomId: string) => {
+  return prisma.classroom.findUnique({
+    where: { id: classroomId, isDeleted: false },
+    include: { enrollments: true },
+  });
+};
+
+export const deleteClassroom = async (classroomId: string, userId: string) => {
+  const classroom = await prisma.classroom.findUnique({
+    where: { id: classroomId },
+  });
+  if (!classroom) throw new Error("Classroom not found");
+  if (classroom.ownerId !== userId) throw new Error("Unauthorized");
+
+  return prisma.classroom.update({
+    where: { id: classroomId },
+    data: { isDeleted: true },
+  });
+};

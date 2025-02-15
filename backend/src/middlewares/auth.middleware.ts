@@ -11,37 +11,24 @@ const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ message: "Unauthorized: No token provided" });
-  }
-
-  const token = authHeader.split("Bearer ")[1];
-
+): Promise<void> => {
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    if (!decodedToken.role) {
-      return res.status(403).json({ message: "Forbidden: No role assigned" });
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(401).json({ message: "Unauthorized: No token provided" });
+      return;
     }
+
+    const token = authHeader.split("Bearer ")[1];
+    const decodedToken = await admin.auth().verifyIdToken(token);
+
     req.user = decodedToken;
     next();
   } catch (error) {
     console.error("Error verifying Firebase token:", error);
-    return res.status(403).json({ message: "Forbidden: Invalid token" });
+    next(error);
   }
 };
 
-const authorizeRole = (allowedRoles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({ message: "Forbidden: Insufficient permissions" });
-    }
-    next();
-  };
-};
-
-export { authenticate, authorizeRole };
+export { authenticate };
