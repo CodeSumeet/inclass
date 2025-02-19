@@ -5,13 +5,21 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
+  setPersistence,
+  browserLocalPersistence,
 } from "firebase/auth";
 import API from "./api";
 
 const googleProvider = new GoogleAuthProvider();
 
 export const loginWithEmail = async (email: string, password: string) => {
-  return signInWithEmailAndPassword(auth, email, password);
+  await setPersistence(auth, browserLocalPersistence);
+  const userCredential = await signInWithEmailAndPassword(
+    auth,
+    email,
+    password
+  );
+  return userCredential;
 };
 
 export const signUpWithEmail = async (
@@ -21,6 +29,7 @@ export const signUpWithEmail = async (
   lastName: string
 ) => {
   try {
+    await setPersistence(auth, browserLocalPersistence);
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
@@ -47,6 +56,7 @@ export const signUpWithEmail = async (
 
 export const signInWithGoogle = async () => {
   try {
+    await setPersistence(auth, browserLocalPersistence);
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
@@ -78,5 +88,5 @@ export const signInWithGoogle = async () => {
 };
 
 export const logout = async () => {
-  return signOut(auth);
+  await signOut(auth);
 };

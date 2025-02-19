@@ -1,68 +1,59 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
+import { useAuthStore } from "../store/useAuthStore";
 import Logo from "../assets/inclasslogo.svg";
 import SignInIllustration from "../assets/SignupIllustration.svg";
 import { Button } from "../components/ui/Button";
 import Input from "../components/ui/Input";
 import GoogleIcon from "../assets/googleicon.svg";
-import { loginWithEmail, signInWithGoogle } from "../services/authService";
-import { useAuthStore } from "../store/useAuthStore";
+
+interface SignInFormData {
+  email: string;
+  password: string;
+}
 
 const SignInPage = () => {
   const navigate = useNavigate();
-  const setUser = useAuthStore((state) => state.setUser);
+  const { loginWithEmail, loginWithGoogle, isLoading, error } = useAuthStore();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<SignInFormData>({
     email: "",
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError("");
-
     try {
-      const userCredential = await loginWithEmail(
-        formData.email,
-        formData.password
-      );
-      setUser(userCredential.user);
+      await loginWithEmail(formData.email, formData.password);
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      // Error is already handled in the store
+      console.error("Login failed:", err);
     }
   };
 
   const handleGoogleSignIn = async () => {
-    setLoading(true);
-    setError("");
-
     try {
-      const userCredential = await signInWithGoogle();
-      setUser(userCredential.user);
+      await loginWithGoogle();
       navigate("/dashboard");
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    } catch (err) {
+      // Error is already handled in the store
+      console.error("Google sign-in failed:", err);
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-background grid lg:grid-cols-2">
       {/* Left: Sign In Form */}
-      <div className="flex flex-col items-center justify-center px-6 lg:px-20 py-12 relative">
+      <div className="flex flex-col items-center justify-center px-6 lg:px-20 py-12">
         <div className="w-full max-w-[400px] mx-auto space-y-6">
           {/* Logo */}
           <Link
@@ -71,7 +62,7 @@ const SignInPage = () => {
           >
             <img
               src={Logo}
-              alt=""
+              alt="Inclass Logo"
               className="h-8 w-8"
             />
             <span className="text-xl font-semibold">
@@ -115,6 +106,7 @@ const SignInPage = () => {
                 icon={<Lock className="h-5 w-5" />}
                 required
               />
+
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2">
                   <input
@@ -141,11 +133,10 @@ const SignInPage = () => {
             <Button
               type="submit"
               size="lg"
-              loading={loading}
-              fullWidth
-              className="mt-2"
+              loading={isLoading}
+              className="w-full"
             >
-              {loading ? "Signing in..." : "Sign in"}
+              Sign in
               <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </form>
@@ -162,22 +153,21 @@ const SignInPage = () => {
             </div>
           </div>
 
-          {/* Social Sign In */}
+          {/* Google Sign In */}
           <Button
             type="button"
             variant="outline"
             size="lg"
-            fullWidth
-            className="border-gray-200"
+            className="w-full"
             onClick={handleGoogleSignIn}
-            disabled={loading}
+            disabled={isLoading}
           >
             <img
               src={GoogleIcon}
               alt=""
               className="h-5 w-5 mr-2"
             />
-            {loading ? "Signing in..." : "Sign in with Google"}
+            Sign in with Google
           </Button>
 
           {/* Sign Up Link */}
@@ -199,7 +189,7 @@ const SignInPage = () => {
           <img
             src={SignInIllustration}
             alt=""
-            className="w-full h-auto mb-8 animate-float"
+            className="w-full h-auto mb-8"
           />
           <h2 className="text-2xl font-semibold mb-2">
             Welcome to your Virtual Classroom
