@@ -16,8 +16,12 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  enrollments Enrollment[]
-  classrooms  Classroom[] @relation("ClassroomOwner")
+  // Relations
+  enrollments    Enrollment[]
+  classrooms     Classroom[]    @relation("ClassroomOwner")
+  announcements  Announcement[]
+  comments       Comment[]
+  submissions    Submission[]
 }
 
 model Classroom {
@@ -33,19 +37,125 @@ model Classroom {
   isDeleted   Boolean  @default(false)
   ownerId     String
 
-  owner       User     @relation(fields: [ownerId], references: [userId], name: "ClassroomOwner")
-  enrollments Enrollment[]
+  // Relations
+  owner         User          @relation(fields: [ownerId], references: [userId], name: "ClassroomOwner")
+  enrollments   Enrollment[]
+  announcements Announcement[]
+  assignments   Assignment[]
+  materials     Material[]
+  topics        Topic[]
+}
+
+model Topic {
+  id          String   @id @default(uuid())
+  name        String
+  classroomId String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  classroom   Classroom   @relation(fields: [classroomId], references: [id])
+  assignments Assignment[]
+  materials   Material[]
+}
+
+model Announcement {
+  id          String   @id @default(uuid())
+  content     String
+  classroomId String
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  classroom  Classroom @relation(fields: [classroomId], references: [id])
+  createdBy  User     @relation(fields: [createdById], references: [userId])
+  comments   Comment[]
+}
+
+model Assignment {
+  id           String    @id @default(uuid())
+  title        String
+  instructions String
+  points       Int?
+  dueDate      DateTime?
+  topicId      String?
+  classroomId  String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  classroom   Classroom    @relation(fields: [classroomId], references: [id])
+  topic       Topic?       @relation(fields: [topicId], references: [id])
+  submissions Submission[]
+  materials   Material[]
+  comments    Comment[]
+}
+
+model Submission {
+  id           String           @id @default(uuid())
+  assignmentId String
+  studentId    String
+  status       SubmissionStatus @default(ASSIGNED)
+  grade        Int?
+  feedback     String?
+  turnedInAt   DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  // Relations
+  assignment   Assignment @relation(fields: [assignmentId], references: [id])
+  student      User      @relation(fields: [studentId], references: [userId])
+  materials    Material[]
+  comments     Comment[]
+
+  @@unique([assignmentId, studentId])
+}
+
+model Material {
+  id            String   @id @default(uuid())
+  title         String
+  type          MaterialType
+  url           String
+  classroomId   String?
+  assignmentId  String?
+  submissionId  String?
+  topicId       String?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  classroom   Classroom?  @relation(fields: [classroomId], references: [id])
+  assignment  Assignment? @relation(fields: [assignmentId], references: [id])
+  submission  Submission? @relation(fields: [submissionId], references: [id])
+  topic       Topic?      @relation(fields: [topicId], references: [id])
+}
+
+model Comment {
+  id            String   @id @default(uuid())
+  content       String
+  createdById   String
+  assignmentId  String?
+  submissionId  String?
+  announcementId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  createdBy    User         @relation(fields: [createdById], references: [userId])
+  assignment   Assignment?  @relation(fields: [assignmentId], references: [id])
+  submission   Submission? @relation(fields: [submissionId], references: [id])
+  announcement Announcement? @relation(fields: [announcementId], references: [id])
 }
 
 model Enrollment {
-  id          String     @id @default(uuid())
+  id          String   @id @default(uuid())
   userId      String
   classroomId String
   role        Role
-  createdAt   DateTime   @default(now())
+  createdAt   DateTime @default(now())
 
-  user       User       @relation(fields: [userId], references: [userId])
-  classroom  Classroom  @relation(fields: [classroomId], references: [id])
+  // Relations
+  user      User      @relation(fields: [userId], references: [userId])
+  classroom Classroom @relation(fields: [classroomId], references: [id])
 
   @@unique([userId, classroomId])
 }
@@ -53,4 +163,18 @@ model Enrollment {
 enum Role {
   TEACHER
   STUDENT
+}
+
+enum SubmissionStatus {
+  ASSIGNED
+  TURNED_IN
+  RETURNED
+  GRADED
+}
+
+enum MaterialType {
+  LINK
+  FILE
+  YOUTUBE
+  DRIVE
 }
