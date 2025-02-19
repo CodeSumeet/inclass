@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
-import InclassLogo from "../assets/inclasslogo.svg";
+import Logo from "../assets/inclasslogo.svg";
 import { Button } from "./ui/Button";
 
 const navItems = [
@@ -26,121 +26,112 @@ const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <header className="w-full h-[68px] bg-white border-b border-black relative shadow-sm">
+    <header className="w-full h-[68px] bg-white border-b border-gray-200 relative shadow-sm">
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
         <Link
           to="/"
-          className="flex items-center"
+          className="flex items-center gap-2.5 group"
         >
           <img
-            src={InclassLogo}
+            src={Logo}
             alt="Inclass Logo"
-            className="inclass-logo h-8"
+            className="h-8 w-8 transition-transform duration-300 group-hover:scale-105"
           />
-          <span className="ml-2 text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-            Inclass
+          <span className="text-2xl font-semibold tracking-tight">
+            <span className="text-primary">In</span>
+            <span className="text-gray-900">class</span>
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav
-          className="hidden md:flex space-x-10"
+          className="hidden md:flex space-x-8"
           role="navigation"
         >
           {navItems.map(({ label, href }) => (
             <a
               key={href}
               href={href}
-              className="text-gray-700 hover:text-secondary transition-all duration-200"
+              className="text-gray-600 hover:text-primary transition-colors"
             >
               {label}
             </a>
           ))}
         </nav>
 
-        {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center space-x-4">
           <Button
             variant="outline"
-            size="md"
+            size="sm"
+            className="border-gray-200 hover:border-primary"
           >
-            <Link to="/auth/sign-in">Log In</Link>
+            <Link to="/auth/sign-in">Sign in</Link>
           </Button>
-          <Button
-            variant="filled"
-            size="md"
-          >
-            <Link to="/auth/sign-up">Sign Up</Link>
+          <Button size="sm">
+            <Link to="/auth/sign-up">Sign up</Link>
           </Button>
         </div>
 
-        {/* Mobile Menu Toggle */}
         <button
-          className="md:hidden focus:outline-none transition-transform"
+          className="md:hidden focus:outline-none"
           onClick={toggleMenu}
           aria-label="Toggle menu"
           aria-expanded={isOpen ? "true" : "false"}
         >
           {isOpen ? (
             <X
-              size={28}
-              className="text-primary"
+              size={24}
+              className="text-gray-700"
             />
           ) : (
-            <Menu size={28} />
+            <Menu
+              size={24}
+              className="text-gray-700"
+            />
           )}
         </button>
       </div>
 
-      {/* Mobile Menu */}
       {isOpen && (
-        <>
-          <div
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-20 md:hidden"
-            onClick={toggleMenu}
-          />
-          <div
-            className={`absolute top-[68px] left-0 w-full bg-white border-t border-border flex flex-col items-center space-y-4 py-6 z-30 shadow-lg transition-transform transform ${
-              isOpen ? "translate-y-0 opacity-100" : "-translate-y-5 opacity-0"
-            }`}
-          >
+        <div className="absolute top-[68px] left-0 right-0 bg-white border-b border-gray-200 shadow-lg md:hidden">
+          <div className="px-4 py-4 space-y-4">
             {navItems.map(({ label, href }) => (
               <a
                 key={href}
                 href={href}
-                className="text-gray-800 hover:text-secondary transition-all duration-200 text-lg"
+                className="block text-gray-600 hover:text-primary transition-colors"
                 onClick={toggleMenu}
               >
                 {label}
               </a>
             ))}
-
-            <Button
-              variant="outline"
-              size="md"
-              className="w-[80%]"
-            >
-              <Link
-                to="/auth/sign-in"
-                onClick={toggleMenu}
+            <div className="space-y-2 pt-2 border-t border-gray-100">
+              <Button
+                variant="outline"
+                size="sm"
+                fullWidth
+                className="border-gray-200 hover:border-primary"
               >
-                Log In
-              </Link>
-            </Button>
-            <Button
-              variant="filled"
-              size="md"
-              className="w-[80%]"
-            >
-              <Link
-                to="/auth/sign-up"
-                onClick={toggleMenu}
+                <Link
+                  to="/auth/sign-in"
+                  onClick={toggleMenu}
+                >
+                  Sign in
+                </Link>
+              </Button>
+              <Button
+                size="sm"
+                fullWidth
               >
-                Sign Up
-              </Link>
-            </Button>
+                <Link
+                  to="/auth/sign-up"
+                  onClick={toggleMenu}
+                >
+                  Sign up
+                </Link>
+              </Button>
+            </div>
           </div>
-        </>
+        </div>
       )}
     </header>
   );

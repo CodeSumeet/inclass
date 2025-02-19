@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -14,99 +14,163 @@ html {
 
 @layer base {
   :root {
-    --background: 55 92% 95%;
+    --background: 210 50% 98%; /* Soft blue-tinted background */
     --foreground: 224 71% 12%;
 
-    --primary: 219 89% 55%;
+    --primary: 217 91% 60%; /* Educational blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 271 81% 56%;
+    --secondary: 280 84% 60%; /* Playful purple */
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 160 84% 40%;
+    --accent: 162 84% 39%; /* Fresh mint */
     --accent-foreground: 144 71% 15%;
 
     --success: 142 76% 36%;
-    --success-foreground: 144 71% 15%;
+    --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
-    --warning-foreground: 32 95% 8%;
+    --warning-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 48 20% 85%;
-    --ring: 219 89% 55%;
+    --border: 220 20% 90%;
+    --ring: 217 91% 60%;
     --radius: 0.5rem;
 
     --whiteboard: 0 0% 100%;
     --whiteboard-foreground: 224 71% 12%;
-    --code-bg: 225 27% 96%;
+    --code-bg: 220 14% 96%;
   }
 
   .dark {
-    --background: 240 10% 4%;
-    --foreground: 54 91% 96%;
+    --background: 224 71% 4%;
+    --foreground: 210 20% 98%;
 
-    --primary: 219 89% 65%;
-    --primary-foreground: 240 10% 4%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 271 81% 66%;
+    --secondary: 280 84% 70%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 160 84% 50%;
+    --accent: 162 84% 50%;
     --accent-foreground: 144 71% 15%;
 
-    --success: 142 76% 46%;
-    --warning: 38 92% 60%;
-    --destructive: 0 84% 70%;
+    --border: 215 27% 27%;
+    --ring: 217 91% 60%;
 
-    --border: 240 4% 16%;
-    --ring: 219 89% 65%;
+    --whiteboard: 224 71% 8%;
+    --whiteboard-foreground: 210 20% 98%;
+    --code-bg: 224 71% 10%;
+  }
 
-    --whiteboard: 240 10% 10%;
-    --whiteboard-foreground: 54 91% 96%;
-    --code-bg: 240 10% 15%;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: "Outfit", sans-serif;
   }
 }
 
 @layer utilities {
-  .scrollbar-editor {
+  .scrollbar-clean {
     scrollbar-width: thin;
     scrollbar-color: hsl(var(--border)) transparent;
   }
 
-  .scrollbar-editor::-webkit-scrollbar {
-    width: 8px;
+  .scrollbar-clean::-webkit-scrollbar {
+    width: 6px;
   }
 
-  .scrollbar-editor::-webkit-scrollbar-thumb {
+  .scrollbar-clean::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: var(--radius);
   }
 
-  .hover-glow {
-    box-shadow: 0 4px 24px -6px hsl(var(--primary) / 0.25);
+  .edu-card {
+    @apply bg-white rounded-lg border border-gray-200 shadow-paper 
+           transition-all duration-300 hover:shadow-card;
   }
 
-  .hover-glow:hover {
-    box-shadow: 0 4px 32px -4px hsl(var(--primary) / 0.4);
+  .notebook-paper {
+    @apply bg-chalk p-6 rounded-lg border-l-4 border-primary/20 shadow-paper;
+    background-image: linear-gradient(transparent 31px, #e5e7eb 31px);
+    background-size: 32px 32px;
   }
 
-  .note-card {
-    background: linear-gradient(
-      to right,
-      hsla(var(--primary), 0.1),
-      hsla(var(--secondary), 0.1)
-    );
-    border-left: 4px solid hsl(var(--primary));
-    padding: 12px;
-    border-radius: var(--radius);
+  .highlight-container {
+    @apply relative inline-block;
+  }
+
+  .highlight-effect {
+    @apply absolute bottom-0 left-0 w-full h-[30%] 
+           bg-primary/10 -z-10 rounded-sm
+           transition-all duration-300;
+  }
+
+  .highlight-container:hover .highlight-effect {
+    @apply h-[50%];
   }
 }
 
-.inclass-logo {
-  transition: transform 0.3s ease;
+/* Component Base Styles */
+@layer components {
+  .input-base {
+    @apply w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm
+           transition-all duration-200 placeholder:text-gray-400
+           hover:border-gray-300
+           focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15
+           disabled:opacity-60 disabled:cursor-not-allowed;
+  }
+
+  .button-base {
+    @apply inline-flex items-center justify-center rounded-lg font-medium
+           transition-all duration-200 
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-offset-2 
+           active:scale-[0.98];
+  }
+
+  .nav-link {
+    @apply text-gray-600 hover:text-primary transition-colors duration-200
+           relative after:absolute after:bottom-0 after:left-0 
+           after:w-full after:h-0.5 after:bg-primary
+           after:transform after:scale-x-0 after:transition-transform
+           hover:after:scale-x-100;
+  }
 }
 
-.inclass-logo:hover {
-  transform: scale(1.05);
+/* Animation Classes */
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Educational UI Elements */
+.chalkboard {
+  @apply bg-gray-800 text-white p-6 rounded-lg shadow-lg;
+  background-image: radial-gradient(
+    circle at center,
+    transparent 0%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+}
+
+.pencil-line {
+  @apply border-b-2 border-dashed border-gray-300;
+}
+
+.sticky-note {
+  @apply bg-yellow-100 p-4 rounded-lg shadow-paper rotate-1
+         hover:rotate-0 transition-transform duration-200;
 }

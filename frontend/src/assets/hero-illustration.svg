@@ -1,0 +1,144 @@
+<svg width="800" height="600" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Main Background Shape with Soft Shadow -->
+  <path 
+    d="M50 150C50 89.2487 99.2487 40 160 40H640C700.751 40 750 89.2487 750 150V450C750 510.751 700.751 560 640 560H160C99.2487 560 50 510.751 50 450V150Z" 
+    fill="white"
+    filter="drop-shadow(0px 8px 24px rgba(0, 0, 0, 0.08))"
+  />
+
+  <!-- App Window -->
+  <rect 
+    x="100" 
+    y="80" 
+    width="600" 
+    height="440" 
+    rx="16" 
+    fill="white" 
+    stroke="hsl(217, 91%, 60%)" 
+    stroke-width="2"
+    filter="drop-shadow(0px 4px 12px rgba(59, 130, 246, 0.08))"
+  />
+
+  <!-- Top Bar -->
+  <path
+    d="M100 96C100 87.1634 107.163 80 116 80H684C692.837 80 700 87.1634 700 96V136H100V96Z"
+    fill="hsl(217, 91%, 60%)"
+  />
+
+  <!-- Window Controls -->
+  <circle cx="136" cy="108" r="8" fill="#FF5F57"/>
+  <circle cx="166" cy="108" r="8" fill="#FFBD2E"/>
+  <circle cx="196" cy="108" r="8" fill="#28C840"/>
+
+  <!-- Main Content Area -->
+  <rect x="116" y="152" width="568" height="352" rx="8" fill="hsl(217, 91%, 97%)"/>
+
+  <!-- Video Grid -->
+  <!-- Main Video -->
+  <rect 
+    x="132" 
+    y="168" 
+    width="360" 
+    height="240" 
+    rx="12" 
+    fill="white" 
+    stroke="hsl(217, 91%, 60%)" 
+    stroke-width="2"
+  />
+  
+  <!-- Sidebar Videos -->
+  <rect 
+    x="508" 
+    y="168" 
+    width="160" 
+    height="110" 
+    rx="8" 
+    fill="white" 
+    stroke="hsl(217, 91%, 60%)" 
+    stroke-width="2"
+  />
+  <rect 
+    x="508" 
+    y="288" 
+    width="160" 
+    height="110" 
+    rx="8" 
+    fill="white" 
+    stroke="hsl(217, 91%, 60%)" 
+    stroke-width="2"
+  />
+  <rect 
+    x="508" 
+    y="408" 
+    width="160" 
+    height="80" 
+    rx="8" 
+    fill="white" 
+    stroke="hsl(217, 91%, 60%)" 
+    stroke-width="2"
+  />
+
+  <!-- Teacher Avatar in Main Video -->
+  <circle cx="312" cy="268" r="40" fill="hsl(217, 91%, 60%)"/>
+  <path 
+    d="M292 268a20 20 0 1140 0a20 20 0 01-40 0" 
+    fill="white"
+  />
+  <path 
+    d="M282 303c0-15 15-20 30-20s30 5 30 15" 
+    fill="white"
+  />
+
+  <!-- Student Avatars in Sidebar -->
+  <!-- Student 1 -->
+  <circle cx="588" cy="208" r="20" fill="hsl(217, 91%, 60%)"/>
+  <path d="M578 208a10 10 0 1120 0a10 10 0 01-20 0" fill="white"/>
+  <path d="M573 223c0-7.5 7.5-10 15-10s15 2.5 15 7.5" fill="white"/>
+
+  <!-- Student 2 -->
+  <circle cx="588" cy="328" r="20" fill="hsl(217, 91%, 60%)"/>
+  <path d="M578 328a10 10 0 1120 0a10 10 0 01-20 0" fill="white"/>
+  <path d="M573 343c0-7.5 7.5-10 15-10s15 2.5 15 7.5" fill="white"/>
+
+  <!-- Student 3 -->
+  <circle cx="588" cy="448" r="20" fill="hsl(217, 91%, 60%)"/>
+  <path d="M578 448a10 10 0 1120 0a10 10 0 01-20 0" fill="white"/>
+  <path d="M573 463c0-7.5 7.5-10 15-10s15 2.5 15 7.5" fill="white"/>
+
+  <!-- Bottom Control Bar -->
+  <rect 
+    x="132" 
+    y="424" 
+    width="360" 
+    height="64" 
+    rx="32" 
+    fill="white"
+    stroke="hsl(217, 91%, 60%)"
+    stroke-width="2"
+  />
+
+  <!-- Control Buttons -->
+  <circle cx="196" cy="456" r="16" fill="hsl(217, 91%, 60%)"/> <!-- Mic -->
+  <circle cx="264" cy="456" r="16" fill="hsl(217, 91%, 60%)"/> <!-- Camera -->
+  <circle cx="332" cy="456" r="16" fill="hsl(217, 91%, 60%)"/> <!-- Share -->
+  <circle cx="400" cy="456" r="16" fill="#EF4444"/> <!-- End -->
+
+  <!-- Decorative Elements -->
+  <circle cx="80" cy="120" r="16" fill="hsl(217, 91%, 95%)" class="animate-float-slow"/>
+  <circle cx="720" cy="480" r="16" fill="hsl(217, 91%, 95%)" class="animate-float-slow"/>
+  <rect x="700" y="160" width="32" height="32" rx="8" fill="hsl(217, 91%, 95%)" class="animate-float-slow"/>
+  <rect x="68" y="400" width="32" height="32" rx="8" fill="hsl(217, 91%, 95%)" class="animate-float-slow"/>
+
+  <!-- Chat Panel -->
+  <rect 
+    x="132" 
+    y="168" 
+    width="240" 
+    height="240" 
+    rx="12" 
+    fill="white" 
+    stroke="hsl(217, 91%, 60%)" 
+    stroke-width="2"
+    filter="drop-shadow(0px 4px 12px rgba(59, 130, 246, 0.08))"
+  />
+</svg>

@@ -1,11 +1,21 @@
-<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="25" cy="25" r="24.5" fill="url(#paint0_linear_124_509)" stroke="black"/>
-<circle cx="25" cy="13.75" r="5.75" fill="white" stroke="black"/>
-<path d="M22.0024 27.1484C21.8831 25.2391 23.3995 23.625 25.3125 23.625C27.2255 23.625 28.7419 25.2391 28.6226 27.1484L27.8014 40.2868C27.7193 41.6011 26.6294 42.625 25.3125 42.625C23.9956 42.625 22.9057 41.6011 22.8236 40.2868L22.0024 27.1484Z" fill="white" stroke="black"/>
-<defs>
-<linearGradient id="paint0_linear_124_509" x1="0" y1="25" x2="50" y2="25" gradientUnits="userSpaceOnUse">
-<stop stop-color="#6366F1"/>
-<stop offset="1" stop-color="#8B5CF6"/>
-</linearGradient>
-</defs>
+<svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle 
+    cx="20" 
+    cy="20" 
+    r="20" 
+    fill="hsl(217, 91%, 60%)"
+  />
+  
+  <!-- Book Icon -->
+  <path 
+    d="M12 14C12 12.8954 12.8954 12 14 12H26C27.1046 12 28 12.8954 28 14V26C28 27.1046 27.1046 28 26 28H14C12.8954 28 12 27.1046 12 26V14Z" 
+    fill="white"
+  />
+  <path 
+    d="M16 16H24M16 20H24M16 24H20" 
+    stroke="hsl(217, 91%, 60%)" 
+    stroke-width="2" 
+    stroke-linecap="round"
+  />
 </svg>

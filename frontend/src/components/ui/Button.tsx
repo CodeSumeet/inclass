@@ -3,56 +3,106 @@ import { cn } from "../../lib/utils";
 import { ButtonHTMLAttributes, forwardRef } from "react";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center rounded-full font-medium transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none",
+  "inline-flex items-center justify-center rounded-lg font-medium " +
+    "transition-all duration-200 shadow-sm hover:shadow-md " +
+    "disabled:opacity-50 disabled:pointer-events-none " +
+    "focus:outline-none focus:ring-2 focus:ring-offset-2 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        filled:
-          "border border-black bg-gradient-to-r from-primary to-secondary text-primary-foreground " +
-          "hover:bg-gradient-to-r hover:from-primary/90 hover:to-secondary/90 " +
-          "active:opacity-80 focus:ring-primary",
-
+        default:
+          "bg-primary text-white hover:bg-primary/90 " +
+          "focus:ring-primary/30",
         outline:
-          "border border-black text-foreground " +
-          "hover:bg-gray-100 hover:text-accent " +
-          "active:opacity-80 focus:ring-accent",
-
+          "border-2 border-gray-200 bg-white text-gray-700 " +
+          "hover:border-primary hover:text-primary " +
+          "focus:ring-primary/30",
         ghost:
-          "text-foreground hover:bg-accent/10 hover:text-accent " +
-          "active:opacity-80 focus:ring-accent",
+          "text-gray-700 hover:bg-gray-100 hover:text-primary " +
+          "focus:ring-gray-200",
+        secondary:
+          "bg-secondary text-white hover:bg-secondary/90 " +
+          "focus:ring-secondary/30",
+        accent:
+          "bg-accent text-white hover:bg-accent/90 " + "focus:ring-accent/30",
+        destructive:
+          "bg-destructive text-white hover:bg-destructive/90 " +
+          "focus:ring-destructive/30",
+        link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        sm: "px-4 py-1.5 text-sm h-9",
-        md: "px-6 py-2.5 text-base h-11",
-        lg: "px-8 py-3.5 text-lg h-14",
+        xs: "h-8 px-3 text-xs",
+        sm: "h-9 px-4 text-sm",
+        md: "h-11 px-6 text-sm",
+        lg: "h-12 px-8 text-base",
+        xl: "h-14 px-10 text-lg",
       },
       fullWidth: {
         true: "w-full",
         false: "",
       },
+      loading: {
+        true: "opacity-70 cursor-wait",
+        false: "",
+      },
     },
     defaultVariants: {
-      variant: "filled",
+      variant: "default",
       size: "md",
       fullWidth: false,
+      loading: false,
     },
   }
 );
 
 interface ButtonProps
   extends ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {}
+    VariantProps<typeof buttonVariants> {
+  loading?: boolean;
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+}
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, fullWidth, children, ...props }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      fullWidth,
+      loading,
+      leftIcon,
+      rightIcon,
+      children,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
     return (
       <button
         ref={ref}
-        className={cn(buttonVariants({ variant, size, fullWidth }), className)}
-        aria-label={!children ? "Button" : undefined}
+        className={cn(
+          buttonVariants({
+            variant,
+            size,
+            fullWidth,
+            loading,
+          }),
+          className
+        )}
+        disabled={disabled || loading}
         {...props}
       >
+        {loading ? (
+          <span className="mr-2 inline-block animate-spin">⚪</span>
+        ) : leftIcon ? (
+          <span className="mr-2">{leftIcon}</span>
+        ) : null}
+
         {children}
+
+        {rightIcon && !loading && <span className="ml-2">{rightIcon}</span>}
       </button>
     );
   }
@@ -61,3 +111,4 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 export { Button, buttonVariants };
+export type { ButtonProps };

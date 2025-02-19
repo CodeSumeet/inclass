@@ -3,7 +3,7 @@ import React from "react";
 import { AlertCircle } from "lucide-react";
 
 type InputProps = {
-  label: string;
+  label?: string;
   type?: "text" | "password" | "email" | "number" | "tel" | "url" | "search";
   variant?: "default" | "outlined" | "filled" | "error";
   className?: string;
@@ -21,24 +21,37 @@ const Input: React.FC<InputProps> = ({
   ...props
 }) => {
   const baseStyles =
-    "w-full min-w-0 px-4 py-3 text-md placeholder-gray-600 font-medium rounded-full focus:outline-none transition-all duration-200";
+    "w-full min-w-0 px-4 py-3 text-sm bg-white " +
+    "rounded-lg border transition-all duration-200 " +
+    "placeholder:text-gray-400 focus:outline-none " +
+    "shadow-sm hover:shadow-md";
 
   const variants = {
     default:
-      "border border-gray-300 bg-white text-black focus:ring-2 focus:ring-black focus:border-black",
+      "border-gray-200 hover:border-primary/50 focus:border-primary " +
+      "focus:ring-2 focus:ring-primary/20",
     outlined:
-      "border border-black bg-transparent text-black focus:ring-2 focus:ring-black",
+      "border-gray-200 hover:border-primary/50 focus:border-primary " +
+      "focus:ring-2 focus:ring-primary/20",
     filled:
-      "bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:ring-2 focus:ring-white",
+      "bg-gray-50 border-gray-200 hover:border-primary/50 " +
+      "focus:border-primary focus:ring-2 focus:ring-primary/20",
     error:
-      "border border-red-500 text-red-600 bg-red-100 focus:ring-2 focus:ring-red-500",
+      "border-red-300 bg-red-50 text-red-900 " +
+      "placeholder:text-red-300 focus:border-red-500 " +
+      "focus:ring-2 focus:ring-red-200",
   };
+
+  const labelStyles = cn(
+    "block mb-2 text-sm font-medium",
+    variant === "error" ? "text-red-600" : "text-gray-700"
+  );
 
   return (
     <div className="flex flex-col w-full">
       <label
-        htmlFor={label.replace(/\s+/g, "-").toLowerCase()}
-        className="mb-1 text-md font-medium text-gray-700"
+        htmlFor={label?.replace(/\s+/g, "-").toLowerCase()}
+        className={labelStyles}
       >
         {label}
       </label>
@@ -47,7 +60,7 @@ const Input: React.FC<InputProps> = ({
         {icon && <span className="absolute left-4 text-gray-500">{icon}</span>}
 
         <input
-          id={label.replace(/\s+/g, "-").toLowerCase()}
+          id={label?.replace(/\s+/g, "-").toLowerCase()}
           type={type}
           className={cn(
             baseStyles,
@@ -62,10 +75,10 @@ const Input: React.FC<InputProps> = ({
       </div>
 
       {errorMessage && (
-        <p className="mt-2 text-sm text-red-500 flex items-center gap-1 animate-fade-in">
-          <AlertCircle size={16} />
-          {errorMessage}
-        </p>
+        <div className="mt-2 text-sm text-red-600 flex items-center gap-1.5">
+          <AlertCircle className="h-4 w-4" />
+          <span>{errorMessage}</span>
+        </div>
       )}
     </div>
   );

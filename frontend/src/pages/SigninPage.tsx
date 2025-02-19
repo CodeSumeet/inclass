@@ -1,16 +1,15 @@
-import { FC, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import InclassLogo from "../assets/inclasslogo.svg";
-import Input from "../components/ui/Input";
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Mail, Lock, ArrowRight } from "lucide-react";
+import Logo from "../assets/inclasslogo.svg";
+import SignInIllustration from "../assets/SignupIllustration.svg";
 import { Button } from "../components/ui/Button";
-import { Link } from "react-router-dom";
+import Input from "../components/ui/Input";
 import GoogleIcon from "../assets/googleicon.svg";
-import SignupIllustration from "../assets/SignupIllustration.svg";
-import QuarterCircle from "../assets/quartercircle.svg";
 import { loginWithEmail, signInWithGoogle } from "../services/authService";
 import { useAuthStore } from "../store/useAuthStore";
 
-const SigninPage: FC = () => {
+const SignInPage = () => {
   const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
 
@@ -26,7 +25,7 @@ const SigninPage: FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSignin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -45,7 +44,7 @@ const SigninPage: FC = () => {
     }
   };
 
-  const handleGoogleSignin = async () => {
+  const handleGoogleSignIn = async () => {
     setLoading(true);
     setError("");
 
@@ -61,116 +60,158 @@ const SigninPage: FC = () => {
   };
 
   return (
-    <div className="relative flex flex-col lg:flex-row items-center justify-center min-h-screen px-6 md:px-12 bg-background">
-      <figure className="hidden lg:block absolute top-0 right-0 w-28 md:w-36 lg:w-44">
-        <img
-          src={QuarterCircle}
-          alt="Quarter Circle"
-          className="w-full"
-        />
-      </figure>
+    <div className="min-h-screen w-full bg-background grid lg:grid-cols-2">
+      {/* Left: Sign In Form */}
+      <div className="flex flex-col items-center justify-center px-6 lg:px-20 py-12 relative">
+        <div className="w-full max-w-[400px] mx-auto space-y-6">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="flex items-center gap-2 mb-8"
+          >
+            <img
+              src={Logo}
+              alt=""
+              className="h-8 w-8"
+            />
+            <span className="text-xl font-semibold">
+              <span className="text-primary">In</span>
+              <span className="text-gray-900">class</span>
+            </span>
+          </Link>
 
-      <div className="w-full max-w-lg py-8 px-8 md:px-10 flex flex-col items-center bg-white border border-black rounded-xl shadow-md lg:mr-12 xl:mr-20 transition-all">
-        <figure className="mb-5">
-          <img
-            src={InclassLogo}
-            alt="Inclass Logo"
-            className="w-16"
-          />
-        </figure>
+          {/* Header */}
+          <div className="space-y-2">
+            <h1 className="text-2xl font-semibold tracking-tight">
+              Welcome back
+            </h1>
+            <p className="text-gray-500">Sign in to your Inclass account</p>
+          </div>
 
-        <h1 className="text-3xl md:text-4xl font-bold text-black text-center">
-          Welcome Back
-        </h1>
-        <p className="text-md md:text-lg text-gray-700 text-center mt-1">
-          Sign in to your Inclass account
-        </p>
+          {/* Sign In Form */}
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-4"
+          >
+            <Input
+              label="Email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              icon={<Mail className="h-5 w-5" />}
+              required
+            />
 
-        {/* Error Message */}
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+            <div className="space-y-4">
+              <Input
+                label="Password"
+                type="password"
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Enter your password"
+                icon={<Lock className="h-5 w-5" />}
+                required
+              />
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary/20"
+                  />
+                  <span className="text-sm text-gray-500">Remember me</span>
+                </label>
+                <Link
+                  to="/auth/forgot-password"
+                  className="text-sm font-medium text-primary hover:text-primary/90"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
 
-        <form
-          onSubmit={handleSignin}
-          className="w-full mt-6 flex flex-col space-y-4"
-        >
-          <Input
-            variant="outlined"
-            type="email"
-            label="Email Address"
-            name="email"
-            placeholder="johndoe@example.com"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <Input
-            variant="outlined"
-            type="password"
-            label="Password"
-            name="password"
-            placeholder="•••••••••••••••"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
+            {error && (
+              <div className="p-3 rounded-lg bg-red-50 text-red-600 text-sm">
+                {error}
+              </div>
+            )}
 
+            <Button
+              type="submit"
+              size="lg"
+              loading={loading}
+              fullWidth
+              className="mt-2"
+            >
+              {loading ? "Signing in..." : "Sign in"}
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </Button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200" />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-background text-gray-500">
+                Or continue with
+              </span>
+            </div>
+          </div>
+
+          {/* Social Sign In */}
           <Button
-            fullWidth
+            type="button"
+            variant="outline"
             size="lg"
-            className="mt-4"
+            fullWidth
+            className="border-gray-200"
+            onClick={handleGoogleSignIn}
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign In"}
+            <img
+              src={GoogleIcon}
+              alt=""
+              className="h-5 w-5 mr-2"
+            />
+            {loading ? "Signing in..." : "Sign in with Google"}
           </Button>
-        </form>
 
-        {/* Divider */}
-        <div className="relative flex items-center my-4">
-          <div className="flex-grow border-t border-gray-400"></div>
-          <span className="mx-4 text-sm text-gray-600 bg-white px-2">
-            Or continue with
-          </span>
-          <div className="flex-grow border-t border-gray-400"></div>
-        </div>
-
-        <Button
-          fullWidth
-          variant="outline"
-          size="lg"
-          className="flex items-center justify-center gap-2"
-          onClick={handleGoogleSignin}
-          disabled={loading}
-        >
-          <img
-            src={GoogleIcon}
-            alt="Google Icon"
-            width={22}
-          />
-          <p>{loading ? "Signing in..." : "Continue with Google"}</p>
-        </Button>
-
-        <div className="text-center mt-4 text-sm text-gray-700">
-          Don't have an account?{" "}
-          <Link
-            to="/auth/sign-up"
-            className="text-secondary hover:underline"
-          >
-            Sign up
-          </Link>
+          {/* Sign Up Link */}
+          <p className="text-center text-sm text-gray-500">
+            Don't have an account?{" "}
+            <Link
+              to="/auth/sign-up"
+              className="font-medium text-primary hover:text-primary/90"
+            >
+              Create an account
+            </Link>
+          </p>
         </div>
       </div>
 
-      <div className="hidden lg:flex lg:flex-col lg:items-center lg:w-1/2 relative">
-        <figure className="lg:mr-16 xl:mr-24 lg:mt-28 animate-fade-in">
+      {/* Right: Illustration */}
+      <div className="hidden lg:flex flex-col items-center justify-center bg-white border-l border-gray-100">
+        <div className="max-w-[420px] text-center">
           <img
-            src={SignupIllustration}
-            alt="Signup Illustration"
-            className="w-auto max-w-2xl"
+            src={SignInIllustration}
+            alt=""
+            className="w-full h-auto mb-8 animate-float"
           />
-        </figure>
+          <h2 className="text-2xl font-semibold mb-2">
+            Welcome to your Virtual Classroom
+          </h2>
+          <p className="text-gray-500">
+            Join thousands of teachers and students using Inclass to enhance
+            their learning experience.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default SigninPage;
+export default SignInPage;

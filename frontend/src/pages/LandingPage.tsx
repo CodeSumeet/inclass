@@ -4,116 +4,156 @@ import Navbar from "../components/Navbar";
 import {
   ArrowRight,
   BookOpen,
-  LineChart,
-  UsersRound,
+  Users,
   Video,
+  MessageCircle,
+  Calendar,
+  Award,
+  CheckCircle,
 } from "lucide-react";
-import livePreview from "../assets/livepreview.png";
-
-const FeatureIcon = memo(({ Icon }: { Icon: JSX.Element }) => (
-  <div className="flex items-center justify-center w-16 h-16 text-black border border-black rounded-full">
-    {Icon}
-  </div>
-));
+import HeroImage from "../assets/hero-illustration.svg";
 
 const features = [
   {
-    icon: <Video size={32} />,
-    title: "Live Classes",
-    description: "Seamless virtual classes with high-quality video and audio.",
-  },
-  {
-    icon: <BookOpen size={32} />,
-    title: "Interactive Assessments",
-    description: "Create and grade quizzes, assignments, and tests with ease.",
-  },
-  {
-    icon: <LineChart size={32} />,
-    title: "Progress Tracking",
+    icon: BookOpen,
+    title: "Interactive Learning",
     description:
-      "Monitor student performance with detailed analytics and reports.",
+      "Engage with course materials in a dynamic virtual classroom environment",
   },
   {
-    icon: <UsersRound size={32} />,
-    title: "Collaborative Whiteboard",
+    icon: Video,
+    title: "Live Sessions",
     description:
-      "Brainstorm and explain concepts with an interactive whiteboard.",
+      "Join real-time video classes with crystal clear audio and video",
   },
+  {
+    icon: MessageCircle,
+    title: "Instant Communication",
+    description:
+      "Chat and collaborate with classmates and instructors seamlessly",
+  },
+  {
+    icon: Calendar,
+    title: "Smart Scheduling",
+    description:
+      "Organize your classes and assignments with our intuitive calendar",
+  },
+];
+
+const benefits = [
+  "Enhanced student engagement",
+  "Real-time collaboration tools",
+  "Automated attendance tracking",
+  "Interactive whiteboard features",
+  "Integrated assessment tools",
+  "Cloud recording & playback",
 ];
 
 const LandingPage: FC = () => {
   return (
-    <div className="w-full min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="container mx-auto px-6 lg:px-12">
-        {/* Hero Section */}
-        <section className="py-16 md:py-24 text-center">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-black leading-tight">
-            Transform Your Virtual Classroom Experience
-          </h1>
-          <p className="text-lg md:text-xl text-gray-700 max-w-2xl mx-auto mt-4">
-            Inclass combines the best of Google Classroom and Zoom to create an
-            all-in-one solution for engaging, interactive online learning.
-          </p>
-          <Button
-            size="lg"
-            className="mt-6"
-          >
-            <a
-              href="/auth/sign-up"
-              className="flex items-center"
-            >
-              <span>Get Started</span>
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </a>
-          </Button>
-        </section>
+      {/* Hero Section */}
+      <section className="container mx-auto px-6 pt-20 pb-16 lg:pt-32 lg:pb-24">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
+                Transform Your Virtual
+                <span className="text-primary"> Classroom </span>
+                Experience
+              </h1>
+              <p className="text-lg text-gray-600 max-w-lg">
+                Inclass combines the best of virtual classrooms with powerful
+                collaboration tools to create an engaging learning environment.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <Button
+                size="lg"
+                rightIcon={<ArrowRight />}
+              >
+                Get Started
+              </Button>
+            </div>
+            <div className="flex items-center gap-4 text-gray-600"></div>
+          </div>
+          <div className="relative">
+            <img
+              src={HeroImage}
+              alt="Virtual Classroom"
+              className="w-full animate-float"
+            />
+          </div>
+        </div>
+      </section>
 
-        {/* Live Preview */}
-        <figure className="w-full flex justify-center mt-8">
-          <img
-            src={livePreview}
-            alt="Live Class Preview"
-            className="w-full max-w-4xl rounded-lg shadow-lg transition-all hover:scale-105 duration-300"
-          />
-        </figure>
-
-        {/* Features Section */}
-        <section
-          id="features"
-          className="py-16 md:py-24"
-        >
-          <h2 className="text-3xl md:text-4xl font-bold text-center text-gray-900">
-            Key Features
-          </h2>
-          <p className="text-lg text-gray-600 text-center mt-2 max-w-xl mx-auto">
-            Everything you need to create an engaging virtual classroom.
-          </p>
-
-          <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map(({ icon, title, description }, index) => (
+      {/* Features Section */}
+      <section className="bg-white py-20">
+        <div className="container mx-auto px-6">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <h2 className="text-3xl font-bold mb-4">
+              Everything You Need for Virtual Learning
+            </h2>
+            <p className="text-gray-600">
+              Powerful features designed to make online education more effective
+              and engaging
+            </p>
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {features.map((feature, index) => (
               <div
                 key={index}
-                className="px-6 py-8 bg-white rounded-xl flex flex-col items-center text-center border border-black shadow-md hover:shadow-lg transition-shadow duration-300"
+                className="edu-card p-6 text-center"
               >
-                <FeatureIcon Icon={icon} />
-                <h3 className="text-xl font-semibold mt-4">{title}</h3>
-                <p className="text-gray-700 mt-2">{description}</p>
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-primary/10 text-primary mb-4">
+                  <feature.icon size={24} />
+                </div>
+                <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
+                <p className="text-gray-600">{feature.description}</p>
               </div>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="py-12 mt-12 border-t border-gray-300 text-center">
-          <p className="text-gray-600">
-            &copy; 2025 Inclass. All rights reserved.
-          </p>
-        </footer>
-      </main>
+      {/* Benefits Section */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="notebook-paper">
+              <h2 className="text-3xl font-bold mb-8">Why Choose Inclass?</h2>
+              <div className="space-y-4">
+                {benefits.map((benefit, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-3"
+                  >
+                    <CheckCircle className="text-primary h-5 w-5 flex-shrink-0" />
+                    <span>{benefit}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div className="sticky-note">
+                <Users className="h-6 w-6 mb-2" />
+                <h4 className="font-semibold mb-1">Community</h4>
+                <p className="text-sm">Connect with other educators</p>
+              </div>
+              <div className="sticky-note">
+                <Award className="h-6 w-6 mb-2" />
+                <h4 className="font-semibold mb-1">Achievement</h4>
+                <p className="text-sm">Track student progress</p>
+              </div>
+              {/* Add more sticky notes as needed */}
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 };
 
-export default LandingPage;
+export default memo(LandingPage);
