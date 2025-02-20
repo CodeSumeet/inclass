@@ -8,13 +8,15 @@ datasource db {
 }
 
 model User {
-  userId      String   @id
-  firstName   String
-  lastName    String
-  email       String   @unique
-  profilePic  String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  userId       String    @id
+  firstName    String
+  lastName     String
+  email        String    @unique
+  profilePic   String?
+  phone        String?
+  authProvider String    @default("email") // "email" or "google"
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   // Relations
   enrollments    Enrollment[]

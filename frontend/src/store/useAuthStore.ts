@@ -8,27 +8,20 @@ import {
   logout,
 } from "../services/authService";
 
-// Define types
-interface UserData {
+interface User {
   userId: string;
   email: string;
   firstName: string;
   lastName: string;
-  profilePic?: string;
 }
 
 interface AuthState {
-  // State
-  user: UserData | null;
+  user: User | null;
   isLoading: boolean;
   error: string | null;
-
-  // Actions
   setUser: (user: FirebaseUser | null) => void;
   setError: (error: string | null) => void;
   setLoading: (isLoading: boolean) => void;
-
-  // Auth methods
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (
@@ -41,24 +34,21 @@ interface AuthState {
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  // Initial state
   user: null,
   isLoading: true,
   error: null,
 
-  // State setters
   setUser: (firebaseUser) => {
     if (!firebaseUser) {
       set({ user: null });
       return;
     }
 
-    const userData: UserData = {
+    const userData: User = {
       userId: firebaseUser.uid,
       email: firebaseUser.email || "",
       firstName: firebaseUser.displayName?.split(" ")[0] || "",
       lastName: firebaseUser.displayName?.split(" ").slice(1).join(" ") || "",
-      profilePic: firebaseUser.photoURL || undefined,
     };
 
     set({ user: userData });
@@ -67,7 +57,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   setError: (error) => set({ error }),
   setLoading: (isLoading) => set({ isLoading }),
 
-  // Auth methods
   loginWithGoogle: async () => {
     try {
       set({ isLoading: true, error: null });
@@ -75,12 +64,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (!user) throw new Error("No user data returned");
 
-      const userData: UserData = {
+      const userData: User = {
         userId: user.uid,
         email: user.email || "",
         firstName: user.displayName?.split(" ")[0] || "",
         lastName: user.displayName?.split(" ").slice(1).join(" ") || "",
-        profilePic: user.photoURL || undefined,
       };
 
       set({ user: userData });
@@ -99,12 +87,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (!user) throw new Error("No user data returned");
 
-      const userData: UserData = {
+      const userData: User = {
         userId: user.uid,
         email: user.email || "",
         firstName: user.displayName?.split(" ")[0] || "",
         lastName: user.displayName?.split(" ").slice(1).join(" ") || "",
-        profilePic: user.photoURL || undefined,
       };
 
       set({ user: userData });
@@ -128,12 +115,11 @@ export const useAuthStore = create<AuthState>((set) => ({
 
       if (!user) throw new Error("No user data returned");
 
-      const userData: UserData = {
+      const userData: User = {
         userId: user.uid,
         email: user.email || "",
         firstName,
         lastName,
-        profilePic: user.photoURL || undefined,
       };
 
       set({ user: userData });
