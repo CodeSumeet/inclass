@@ -7,6 +7,7 @@ import {
   loginWithEmail,
   logout,
 } from "../services/authService";
+import api from "../services/api";
 
 interface User {
   userId: string;
@@ -18,6 +19,7 @@ interface User {
 interface AuthState {
   user: User | null;
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
   setUser: (user: FirebaseUser | null) => void;
   setError: (error: string | null) => void;
@@ -36,22 +38,39 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isLoading: true,
+  isInitialized: false,
   error: null,
 
-  setUser: (firebaseUser) => {
+  setUser: async (firebaseUser) => {
     if (!firebaseUser) {
-      set({ user: null });
+      set({ user: null, isInitialized: true, isLoading: false });
       return;
     }
 
-    const userData: User = {
-      userId: firebaseUser.uid,
-      email: firebaseUser.email || "",
-      firstName: firebaseUser.displayName?.split(" ")[0] || "",
-      lastName: firebaseUser.displayName?.split(" ").slice(1).join(" ") || "",
-    };
+    try {
+      const response = await api.get(`/user/${firebaseUser.uid}`);
 
-    set({ user: userData });
+      const userData: User = {
+        userId: firebaseUser.uid,
+        email: firebaseUser.email || "",
+        firstName: response.data.firstName,
+        lastName: response.data.lastName,
+      };
+
+      set({ user: userData, isInitialized: true, isLoading: false });
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      set({
+        user: {
+          userId: firebaseUser.uid,
+          email: firebaseUser.email || "",
+          firstName: "",
+          lastName: "",
+        },
+        isInitialized: true,
+        isLoading: false,
+      });
+    }
   },
 
   setError: (error) => set({ error }),
@@ -63,15 +82,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { user } = await signInWithGoogle();
 
       if (!user) throw new Error("No user data returned");
-
-      const userData: User = {
-        userId: user.uid,
-        email: user.email || "",
-        firstName: user.displayName?.split(" ")[0] || "",
-        lastName: user.displayName?.split(" ").slice(1).join(" ") || "",
-      };
-
-      set({ user: userData });
     } catch (error) {
       set({ error: (error as Error).message });
       throw error;
@@ -86,15 +96,6 @@ export const useAuthStore = create<AuthState>((set) => ({
       const { user } = await loginWithEmail(email, password);
 
       if (!user) throw new Error("No user data returned");
-
-      const userData: User = {
-        userId: user.uid,
-        email: user.email || "",
-        firstName: user.displayName?.split(" ")[0] || "",
-        lastName: user.displayName?.split(" ").slice(1).join(" ") || "",
-      };
-
-      set({ user: userData });
     } catch (error) {
       set({ error: (error as Error).message });
       throw error;
@@ -145,7 +146,6 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
-// Initialize auth state listener
 auth.onAuthStateChanged((user) => {
   const store = useAuthStore.getState();
   store.setUser(user);

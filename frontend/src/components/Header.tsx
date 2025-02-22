@@ -26,12 +26,9 @@ const Header: FC = () => {
     }
   };
 
-  // Generate avatar URL or use default avatar
-  const avatarUrl =
-    user?.profilePic ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(
-      `${user?.firstName || ""} ${user?.lastName || ""}`
-    )}&background=random`;
+  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+    `${user?.firstName?.charAt(0) || ""} ${user?.lastName?.charAt(0) || ""}`
+  )}&background=random`;
 
   return (
     <header className="sticky top-0 z-20 bg-white border-b border-gray-200">
@@ -72,7 +69,7 @@ const Header: FC = () => {
             >
               <img
                 src={avatarUrl}
-                alt={`${user?.firstName}'s profile`}
+                alt="Profile"
                 className="w-full h-full rounded-full object-cover"
               />
             </Button>
@@ -84,7 +81,7 @@ const Header: FC = () => {
             <div className="flex items-center gap-3 p-2">
               <img
                 src={avatarUrl}
-                alt={`${user?.firstName}'s profile`}
+                alt="Profile"
                 className="h-10 w-10 rounded-full object-cover"
               />
               <div className="flex flex-col">
