@@ -8,13 +8,7 @@ import {
   logout,
 } from "../services/authService";
 import api from "../services/api";
-
-interface User {
-  userId: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
+import { User, UpdateProfileData } from "../types/user.types";
 
 interface AuthState {
   user: User | null;
@@ -24,6 +18,7 @@ interface AuthState {
   setUser: (user: FirebaseUser | null) => void;
   setError: (error: string | null) => void;
   setLoading: (isLoading: boolean) => void;
+  updateProfile: (data: UpdateProfileData) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (
@@ -35,7 +30,7 @@ interface AuthState {
   logout: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>()((set, get) => ({
   user: null,
   isLoading: true,
   isInitialized: false,
@@ -48,7 +43,7 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
 
     try {
-      const response = await api.get(`/user/${firebaseUser.uid}`);
+      const response = await api.get(`/users/${firebaseUser.uid}`);
 
       const userData: User = {
         userId: firebaseUser.uid,
@@ -75,6 +70,19 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   setError: (error) => set({ error }),
   setLoading: (isLoading) => set({ isLoading }),
+
+  updateProfile: async (data: UpdateProfileData) => {
+    try {
+      const user = get().user;
+      if (!user) throw new Error("No user logged in");
+
+      const response = await api.put(`/users/${user.userId}`, data);
+      set({ user: { ...user, ...response.data } });
+    } catch (error) {
+      set({ error: (error as Error).message });
+      throw error;
+    }
+  },
 
   loginWithGoogle: async () => {
     try {
@@ -146,8 +154,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 }));
 
+// Initialize auth state listener
 auth.onAuthStateChanged((user) => {
   const store = useAuthStore.getState();
   store.setUser(user);
-  store.setLoading(false);
 });

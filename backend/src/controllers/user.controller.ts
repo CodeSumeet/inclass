@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
-import * as UserService from "../services/user.service";
 import asyncHandler from "../utils/asyncHandler";
+import * as UserService from "../services/user.service";
+import { UpdateUserDto } from "../types/user.types";
 
 export const getUserProfile = asyncHandler(
   async (req: Request, res: Response) => {
     const { userId } = req.params;
-    const user = await UserService.getUserById(userId);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    const user = await UserService.getUserProfile(userId);
     res.json(user);
   }
 );
@@ -14,7 +14,8 @@ export const getUserProfile = asyncHandler(
 export const updateUserProfile = asyncHandler(
   async (req: Request, res: Response) => {
     const { userId } = req.params;
-    const updatedUser = await UserService.updateUser(userId, req.body);
+    const updateData: UpdateUserDto = req.body;
+    const updatedUser = await UserService.updateUserProfile(userId, updateData);
     res.json(updatedUser);
   }
 );
@@ -22,7 +23,15 @@ export const updateUserProfile = asyncHandler(
 export const getUserClassrooms = asyncHandler(
   async (req: Request, res: Response) => {
     const { userId } = req.params;
-    const classrooms = await UserService.getUserEnrollments(userId);
+    const classrooms = await UserService.getUserClassrooms(userId);
     res.json(classrooms);
+  }
+);
+
+export const getUserEnrollments = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const enrollments = await UserService.getUserEnrollments(userId);
+    res.json(enrollments);
   }
 );

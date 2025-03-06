@@ -33,6 +33,7 @@ model Classroom {
   subject     String?
   roomNo      String?
   description String?
+  coverImage  String?
   code        String   @unique
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

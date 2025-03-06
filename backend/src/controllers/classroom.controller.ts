@@ -4,14 +4,16 @@ import * as ClassroomService from "../services/classroom.service";
 
 export const createClassroom = asyncHandler(
   async (req: Request, res: Response) => {
-    const { userId, name, section, subject, roomNo, description } = req.body;
+    const { userId, name, section, subject, roomNo, description, coverImage } =
+      req.body; // Include coverImage
     const classroom = await ClassroomService.createClassroom(
       userId,
       name,
       section,
       subject,
       roomNo,
-      description
+      description,
+      coverImage // Pass coverImage to the service
     );
     res.status(201).json(classroom);
   }

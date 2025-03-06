@@ -11,6 +11,7 @@ import CalendarPage from "./pages/CalendarPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import SettingsPage from "./pages/SettingsPage";
 import ClassroomPage from "./pages/ClassroomPage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -38,6 +39,10 @@ function App() {
             <Route
               path="/dashboard"
               element={<DashboardPage />}
+            />
+            <Route
+              path="/profile"
+              element={<ProfilePage />}
             />
             <Route
               path="/classes"

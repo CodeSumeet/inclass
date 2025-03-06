@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/DropdownMenu";
+import { getAvatarUrl } from "../utils/getAvatarUrl";
 
 const Header: FC = () => {
   const location = useLocation();
@@ -26,9 +27,9 @@ const Header: FC = () => {
     }
   };
 
-  const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-    `${user?.firstName?.charAt(0) || ""} ${user?.lastName?.charAt(0) || ""}`
-  )}&background=random`;
+  const avatarUrl = getAvatarUrl({
+    name: `${user?.firstName} ${user?.lastName}`,
+  });
 
   return (
     <header className="sticky top-0 z-20 bg-white border-b border-gray-200">
