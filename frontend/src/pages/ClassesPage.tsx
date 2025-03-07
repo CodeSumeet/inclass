@@ -3,56 +3,85 @@ import { Link } from "react-router-dom";
 import { Button } from "../components/ui/Button";
 import { Card } from "../components/ui/Card";
 import Input from "../components/ui/Input";
-import ClassCreationModal from "../components/modal/ClassCreationModal"; // Import the modal
-import API from "../services/api"; // Import the API service
+import ClassCreationModal from "../components/modal/ClassCreationModal";
+import JoinClassModal from "../components/modal/JoinClassModal";
+import API from "../services/api";
 import { useAuthStore } from "../store/useAuthStore";
 
-// Define the Classroom interface based on your backend model
 interface Classroom {
   id: string;
   name: string;
   section?: string;
   subject?: string;
   coverImage?: string;
-  teacher?: string; // Assuming you have a teacher field
+  teacher?: string;
 }
 
 const ClassesPage: React.FC = () => {
   const { user } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [classes, setClasses] = useState<Classroom[]>([]); // State to hold fetched classes
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState<boolean>(false);
+  const [classes, setClasses] = useState<Classroom[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchClasses = async () => {
+      setLoading(true);
+      setError(null);
       try {
-        const response = await API.get(`/classrooms/user/${user?.userId}`); // Replace with actual user ID
-        setClasses(response.data); // Set the fetched classes
+        const response = await API.get(`/classrooms/user/${user?.userId}`);
+        setClasses(response.data);
       } catch (error) {
-        console.error("Failed to fetch classes:", error);
+        setError("Failed to fetch classes. Please try again.");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchClasses();
-  }, []);
+  }, [user?.userId]);
 
   const filteredClasses = classes.filter((classItem) =>
     classItem.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleClassCreated = async () => {
-    // Fetch the updated class list after a new class is created
+    setLoading(true);
+    setError(null);
     try {
-      const response = await API.get("/classrooms/user/currentUserId"); // Replace with actual user ID
-      setClasses(response.data); // Update the state with the new class list
+      const response = await API.get(`/classrooms/user/${user?.userId}`);
+      setClasses(response.data);
+      setSuccessMessage("Class created successfully!");
     } catch (error) {
-      console.error("Failed to refresh classes:", error);
+      setError("Failed to refresh classes. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClassJoined = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await API.get(`/classrooms/user/${user?.userId}`);
+      setClasses(response.data);
+      setSuccessMessage("Successfully joined the class!");
+    } catch (error) {
+      setError("Failed to refresh classes. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
       <h1 className="text-2xl font-bold mb-4">Your Classes</h1>
+      {loading && <p>Loading classes...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      {successMessage && <p className="text-green-500">{successMessage}</p>}
       <div className="flex justify-between items-center mb-4">
         <Input
           type="text"
@@ -61,6 +90,7 @@ const ClassesPage: React.FC = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1 max-w-xl"
         />
+        <Button onClick={() => setIsJoinModalOpen(true)}>Join Class</Button>
         <Button onClick={() => setIsModalOpen(true)}>Create Class</Button>
       </div>
 
@@ -93,11 +123,16 @@ const ClassesPage: React.FC = () => {
         )}
       </div>
 
-      {/* Class Creation Modal */}
       <ClassCreationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onClassCreated={handleClassCreated}
+      />
+
+      <JoinClassModal
+        isOpen={isJoinModalOpen}
+        onClose={() => setIsJoinModalOpen(false)}
+        onClassJoined={handleClassJoined}
       />
     </div>
   );

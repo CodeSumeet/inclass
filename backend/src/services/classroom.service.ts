@@ -47,18 +47,37 @@ export const joinClassroom = async (userId: string, code: string) => {
   if (existingEnrollment)
     throw new Error("User already enrolled in this classroom");
 
+  console.log("User Id: ", userId);
+
   return prisma.enrollment.create({
     data: { userId, classroomId: classroom.id, role: "STUDENT" },
   });
 };
 
 export const getUserClassrooms = async (userId: string) => {
-  return prisma.classroom.findMany({
-    where: { ownerId: userId }, // Ensure this is filtering by ownerId
+  // Fetch classrooms owned by the user
+  const ownedClassrooms = await prisma.classroom.findMany({
+    where: { ownerId: userId },
     include: {
       enrollments: true, // Include enrollments if needed
     },
   });
+
+  // Fetch classrooms the user is enrolled in
+  const enrolledClassrooms = await prisma.enrollment.findMany({
+    where: { userId: userId },
+    include: {
+      classroom: true, // Include classroom details
+    },
+  });
+
+  // Combine both arrays
+  const allClassrooms = [
+    ...ownedClassrooms,
+    ...enrolledClassrooms.map((enrollment) => enrollment.classroom),
+  ];
+
+  return allClassrooms;
 };
 
 export const getClassroomDetails = async (classroomId: string) => {

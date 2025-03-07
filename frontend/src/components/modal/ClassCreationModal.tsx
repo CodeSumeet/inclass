@@ -3,8 +3,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import Input from "../ui/Input";
 import { Button } from "../ui/Button";
-import FileUpload from "../ui/FileUpload"; // Import the new FileUpload component
-import { useAuthStore } from "../../store/useAuthStore"; // Import your Zustand store
+import FileUpload from "../ui/FileUpload";
+import { useAuthStore } from "../../store/useAuthStore";
 
 interface ClassCreationModalProps {
   isOpen: boolean;
@@ -17,13 +17,15 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
   onClose,
   onClassCreated,
 }) => {
-  const { user } = useAuthStore(); // Get user from Zustand store
+  const { user } = useAuthStore();
   const [formData, setFormData] = useState({
     name: "",
     section: "",
     subject: "",
-    coverImage: null as File | null, // This will now hold the file object
+    coverImage: null as File | null,
   });
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -36,6 +38,8 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
     const formDataToSend = new FormData();
     formDataToSend.append("name", formData.name);
     formDataToSend.append("section", formData.section);
@@ -46,7 +50,6 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
         throw new Error("User is not authenticated");
       }
 
-      // Upload the cover image to Cloudinary
       let coverImageUrl = "";
       if (formData.coverImage) {
         const formDataCloudinary = new FormData();
@@ -54,7 +57,7 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
         formDataCloudinary.append(
           "upload_preset",
           import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-        ); // Use the upload preset from environment variables
+        );
 
         const cloudinaryResponse = await fetch(
           `https://api.cloudinary.com/v1_1/${
@@ -67,23 +70,23 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
         );
 
         const cloudinaryData = await cloudinaryResponse.json();
-        console.log(cloudinaryData);
-        coverImageUrl = cloudinaryData.url; // Get the secure URL of the uploaded image
+        coverImageUrl = cloudinaryData.url;
       }
 
       await API.post("/classrooms/create", {
         name: formData.name,
         section: formData.section,
         subject: formData.subject,
-        coverImage: coverImageUrl, // Use the Cloudinary URL
-        userId: user.userId, // Use the userId from Zustand store
+        coverImage: coverImageUrl,
+        userId: user.userId,
       });
       toast.success("Class created successfully!");
-      onClassCreated(); // Call the function to refresh the class list
-      onClose(); // Close the modal
+      onClassCreated();
+      onClose();
     } catch (error) {
-      toast.error("Failed to create class");
-      console.error("Error creating class:", error);
+      setError("Failed to create class. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -93,6 +96,8 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
       <div className="bg-white p-8 rounded shadow-lg w-full max-w-lg">
         <h2 className="text-xl font-bold mb-4">Create Class</h2>
+        {loading && <p>Creating class...</p>}
+        {error && <p className="text-red-500">{error}</p>}
         <form onSubmit={handleSubmit}>
           <Input
             type="text"

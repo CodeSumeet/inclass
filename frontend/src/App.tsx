@@ -49,7 +49,7 @@ function App() {
               element={<ClassesPage />}
             />
             <Route
-              path="/classroom/:id"
+              path="/classroom/:classroomId"
               element={<ClassroomPage />}
             />
             <Route
