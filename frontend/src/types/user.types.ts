@@ -19,3 +19,10 @@ export interface ProfileFormData {
   firstName: string;
   lastName: string;
 }
+
+export interface UpdateUserDto {
+  firstName?: string;
+  lastName?: string;
+  profilePic?: string;
+  phone?: string;
+}

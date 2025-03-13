@@ -61,19 +61,19 @@ model Topic {
   materials   Material[]
 }
 
-model Announcement {
-  id          String   @id @default(uuid())
-  content     String
-  classroomId String
-  createdById String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+   model Announcement {
+     id          String   @id @default(uuid())
+     content     String
+     classroomId String
+     createdById String
+     createdAt   DateTime @default(now())
+     updatedAt   DateTime @updatedAt
 
-  // Relations
-  classroom  Classroom @relation(fields: [classroomId], references: [id])
-  createdBy  User     @relation(fields: [createdById], references: [userId])
-  comments   Comment[]
-}
+     // Relations
+     classroom  Classroom @relation(fields: [classroomId], references: [id])
+     createdBy  User      @relation(fields: [createdById], references: [userId])
+     comments   Comment[]
+   }
 
 model Assignment {
   id           String    @id @default(uuid())

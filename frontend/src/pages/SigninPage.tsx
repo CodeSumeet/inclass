@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
-import Logo from "../assets/inclasslogo.svg";
-import SignInIllustration from "../assets/SignupIllustration.svg";
-import { Button } from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import GoogleIcon from "../assets/googleicon.svg";
+import Logo from "@/assets/inclasslogo.svg";
+import SignInIllustration from "@/assets/SignupIllustration.svg";
+import GoogleIcon from "@/assets/googleicon.svg";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Button, Input } from "@/components";
 
 interface SignInFormData {
   email: string;

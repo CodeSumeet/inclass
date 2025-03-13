@@ -1,17 +1,17 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
 import LandingPage from "./pages/LandingPage";
-import SignupPage from "./pages/SignupPage";
-import SigninPage from "./pages/SigninPage";
-import ProtectedRoute from "./components/ProtectedRoute";
+import SignUpPage from "./pages/SignupPage";
+import SignInPage from "./pages/SigninPage";
+import { ProtectedRoute } from "./components";
 import AppLayout from "./layouts/AppLayout";
 import DashboardPage from "./pages/DashboardPage";
+import ProfilePage from "./pages/ProfilePage";
 import ClassesPage from "./pages/ClassesPage";
+import ClassroomPage from "./pages/ClassroomPage";
 import CalendarPage from "./pages/CalendarPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import SettingsPage from "./pages/SettingsPage";
-import ClassroomPage from "./pages/ClassroomPage";
-import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -25,11 +25,11 @@ function App() {
         <Route path="/auth">
           <Route
             path="sign-up"
-            element={<SignupPage />}
+            element={<SignUpPage />}
           />
           <Route
             path="sign-in"
-            element={<SigninPage />}
+            element={<SignInPage />}
           />
         </Route>
 

@@ -1,16 +1,8 @@
 import { FC } from "react";
-import { useAuthStore } from "../store/useAuthStore";
-import {
-  Calendar,
-  BookOpen,
-  Bell,
-  Clock,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
-import { cn } from "../lib/utils";
+import { BookOpen, Bell, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Button, Card } from "@/components";
+import { cn } from "@/lib/utils";
 
 const DashboardPage: FC = () => {
   const { user } = useAuthStore();

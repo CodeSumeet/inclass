@@ -1,13 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import admin from "../config/firebase";
 
-declare module "express" {
-  interface Request {
-    user?: admin.auth.DecodedIdToken;
+// Extend the Request type to include user
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        userId: string;
+        email: string;
+      };
+    }
   }
 }
 
-const authenticate = async (
+export const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -16,19 +22,23 @@ const authenticate = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ message: "Unauthorized: No token provided" });
+      res.status(401).json({ message: "Unauthorized" });
       return;
     }
 
     const token = authHeader.split("Bearer ")[1];
+
     const decodedToken = await admin.auth().verifyIdToken(token);
 
-    req.user = decodedToken;
+    // Add user to request
+    req.user = {
+      userId: decodedToken.uid,
+      email: decodedToken.email || "",
+    };
+
     next();
   } catch (error) {
-    console.error("Error verifying Firebase token:", error);
-    next(error);
+    console.error("Authentication error:", error);
+    res.status(401).json({ message: "Unauthorized" });
   }
 };
-
-export { authenticate };

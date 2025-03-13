@@ -1,14 +1,12 @@
 import { FC, useState, useEffect } from "react";
-import { useAuthStore } from "../store/useAuthStore";
-import { UpdateProfileData } from "../types/user.types";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
-import Input from "../components/ui/Input";
 import { toast } from "sonner";
-import api from "../services/api";
 import { Link } from "react-router-dom";
 import { PlusCircle, Users, BookOpen } from "lucide-react";
-import { getAvatarUrl } from "../utils/getAvatarUrl";
+import { useAuthStore } from "@/store/useAuthStore";
+import { getAvatarUrl } from "@/utils/getAvatarUrl";
+import API from "@/services/api";
+import { UpdateProfileData } from "@/types/user.types";
+import { Button, Card, Input } from "@/components";
 
 interface ClassroomData {
   id: string;
@@ -39,8 +37,8 @@ const ProfilePage: FC = () => {
     const fetchClassrooms = async () => {
       try {
         const [ownedRes, enrolledRes] = await Promise.all([
-          api.get(`/users/${user?.userId}/classrooms`),
-          api.get(`/users/${user?.userId}/enrollments`),
+          API.get(`/users/${user?.userId}/classrooms`),
+          API.get(`/users/${user?.userId}/enrollments`),
         ]);
         setOwnedClassrooms(ownedRes.data);
         setEnrolledClassrooms(enrolledRes.data);

@@ -1,6 +1,4 @@
 import { FC, memo } from "react";
-import { Button } from "../components/ui/Button";
-import Navbar from "../components/Navbar";
 import {
   ArrowRight,
   BookOpen,
@@ -11,7 +9,8 @@ import {
   Award,
   CheckCircle,
 } from "lucide-react";
-import HeroImage from "../assets/hero-illustration.svg";
+import HeroImage from "@/assets/hero-illustration.svg";
+import { Button, Navbar } from "@/components";
 
 const features = [
   {

@@ -1,6 +1,7 @@
 import { Router } from "express";
 import * as ClassroomController from "../controllers/classroom.controller";
 import { authenticate } from "../middlewares/auth.middleware";
+import * as AnnouncementController from "../controllers/announcement.controller";
 
 const router = Router();
 
@@ -21,6 +22,24 @@ router.delete(
   "/remove-student",
   authenticate,
   ClassroomController.removeStudent
+);
+
+router.post(
+  "/:classroomId/announcements",
+  authenticate,
+  AnnouncementController.createAnnouncement
+);
+
+router.get(
+  "/:classroomId/announcements",
+  authenticate,
+  AnnouncementController.getClassroomAnnouncements
+);
+
+router.delete(
+  "/announcements/:announcementId",
+  authenticate,
+  AnnouncementController.deleteAnnouncement
 );
 
 export default router;

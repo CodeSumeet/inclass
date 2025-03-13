@@ -6,7 +6,7 @@ import {
   signUpWithEmail,
   loginWithEmail,
   logout,
-} from "../services/authService";
+} from "../services/api/auth";
 import api from "../services/api";
 import { User, UpdateProfileData } from "../types/user.types";
 

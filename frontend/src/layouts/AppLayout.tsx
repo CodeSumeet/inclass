@@ -1,9 +1,8 @@
 import { FC } from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
-import { useAuthStore } from "../store/useAuthStore";
 import { Loader2 } from "lucide-react";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Header, Sidebar } from "@/components";
 
 const AppLayout: FC = () => {
   const { isLoading } = useAuthStore();

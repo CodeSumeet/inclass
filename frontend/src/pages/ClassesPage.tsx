@@ -1,12 +1,9 @@
-import { useState, useEffect } from "react";
+import { Button, Card, Input } from "@/components";
+import { ClassCreationModal, JoinClassModal } from "@/components/common/modal";
+import API from "@/services/api";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "../components/ui/Button";
-import { Card } from "../components/ui/Card";
-import Input from "../components/ui/Input";
-import ClassCreationModal from "../components/modal/ClassCreationModal";
-import JoinClassModal from "../components/modal/JoinClassModal";
-import API from "../services/api";
-import { useAuthStore } from "../store/useAuthStore";
 
 interface Classroom {
   id: string;
@@ -87,7 +84,7 @@ const ClassesPage: React.FC = () => {
           type="text"
           placeholder="Search classes..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e: any) => setSearchTerm(e.target.value)}
           className="flex-1 max-w-xl"
         />
         <Button onClick={() => setIsJoinModalOpen(true)}>Join Class</Button>

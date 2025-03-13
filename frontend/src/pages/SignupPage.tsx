@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, User, ArrowRight } from "lucide-react";
-import Logo from "../assets/inclasslogo.svg";
-import SignUpIllustration from "../assets/SignupIllustration.svg";
-import { Button } from "../components/ui/Button";
-import Input from "../components/ui/Input";
-import GoogleIcon from "../assets/googleicon.svg";
-import { signUpWithEmail, signInWithGoogle } from "../services/authService";
-import { useAuthStore } from "../store/useAuthStore";
+import Logo from "@/assets/inclasslogo.svg";
+import SignUpIllustration from "@/assets/SignupIllustration.svg";
+import GoogleIcon from "@/assets/googleicon.svg";
+import { signUpWithEmail, signInWithGoogle } from "@/services/api/auth";
+import { useAuthStore } from "@/store/useAuthStore";
+import { Button, Input } from "@/components";
 
 const SignUpPage = () => {
   const navigate = useNavigate();
