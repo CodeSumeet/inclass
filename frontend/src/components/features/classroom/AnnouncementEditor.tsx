@@ -4,6 +4,7 @@ import "react-quill/dist/quill.snow.css"; // Import Quill styles
 import { Button } from "../../common/Button/Button";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
+import { uploadToCloudinary } from "@/utils/cloudinaryUtils";
 
 interface AnnouncementEditorProps {
   value: string;
@@ -47,9 +48,9 @@ const AnnouncementEditor: React.FC<AnnouncementEditorProps> = ({
                   const file = input.files[0];
 
                   // Check file size
-                  if (file.size > 10 * 1024 * 1024) {
-                    // 10MB limit
-                    toast.error("File size should be less than 10MB");
+                  if (file.size > 5 * 1024 * 1024) {
+                    // 5MB limit for announcement images
+                    toast.error("Image size should be less than 5MB");
                     return;
                   }
 
@@ -57,47 +58,29 @@ const AnnouncementEditor: React.FC<AnnouncementEditorProps> = ({
                     setIsUploading(true);
                     toast.loading("Uploading image...");
 
-                    const formData = new FormData();
-                    formData.append("file", file);
-                    formData.append(
-                      "upload_preset",
-                      import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET ||
-                        "inclass_uploads"
+                    // Use the cloudinary utility with a special folder for announcement images
+                    const result = await uploadToCloudinary({
+                      file,
+                      fileType: "material", // Using material preset but with a specific folder
+                      classroomId: "announcements", // Using a special folder name
+                    });
+
+                    toast.dismiss();
+                    toast.success("Image uploaded successfully");
+
+                    // Get the Quill editor instance
+                    const quillEditor = this.quill;
+                    const range = quillEditor.getSelection(true);
+
+                    // Insert image at cursor position
+                    quillEditor.insertEmbed(
+                      range.index,
+                      "image",
+                      result.secure_url
                     );
 
-                    const response = await fetch(
-                      `https://api.cloudinary.com/v1_1/${
-                        import.meta.env.VITE_CLOUDINARY_CLOUD_NAME ||
-                        "your-cloud-name"
-                      }/image/upload`,
-                      {
-                        method: "POST",
-                        body: formData,
-                      }
-                    );
-
-                    const data = await response.json();
-
-                    if (data.secure_url) {
-                      toast.dismiss();
-                      toast.success("Image uploaded successfully");
-
-                      // Get the Quill editor instance
-                      const quillEditor = this.quill;
-                      const range = quillEditor.getSelection(true);
-
-                      // Insert image at cursor position
-                      quillEditor.insertEmbed(
-                        range.index,
-                        "image",
-                        data.secure_url
-                      );
-
-                      // Move cursor after image
-                      quillEditor.setSelection(range.index + 1);
-                    } else {
-                      throw new Error("Upload failed");
-                    }
+                    // Move cursor after image
+                    quillEditor.setSelection(range.index + 1);
                   } catch (error) {
                     console.error("Error uploading image:", error);
                     toast.dismiss();

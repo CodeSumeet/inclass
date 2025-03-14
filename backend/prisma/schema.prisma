@@ -24,6 +24,7 @@ model User {
   announcements  Announcement[]
   comments       Comment[]
   submissions    Submission[]
+  materials      Material[]
 }
 
 model Classroom {
@@ -58,7 +59,6 @@ model Topic {
   // Relations
   classroom   Classroom   @relation(fields: [classroomId], references: [id])
   assignments Assignment[]
-  materials   Material[]
 }
 
    model Announcement {
@@ -90,7 +90,6 @@ model Assignment {
   classroom   Classroom    @relation(fields: [classroomId], references: [id])
   topic       Topic?       @relation(fields: [topicId], references: [id])
   submissions Submission[]
-  materials   Material[]
   comments    Comment[]
 }
 
@@ -108,7 +107,6 @@ model Submission {
   // Relations
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   student      User      @relation(fields: [studentId], references: [userId])
-  materials    Material[]
   comments     Comment[]
 
   @@unique([assignmentId, studentId])
@@ -117,19 +115,19 @@ model Submission {
 model Material {
   id            String   @id @default(uuid())
   title         String
-  type          MaterialType
+  description   String?
+  type          String
   url           String
-  classroomId   String?
-  assignmentId  String?
-  submissionId  String?
-  topicId       String?
+  fileSize      Int?
+  fileType      String?
+  classroomId   String
+  createdById   String
   createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relations
-  classroom   Classroom?  @relation(fields: [classroomId], references: [id])
-  assignment  Assignment? @relation(fields: [assignmentId], references: [id])
-  submission  Submission? @relation(fields: [submissionId], references: [id])
-  topic       Topic?      @relation(fields: [topicId], references: [id])
+  classroom     Classroom @relation(fields: [classroomId], references: [id])
+  createdBy     User      @relation(fields: [createdById], references: [userId])
 }
 
 model Comment {
@@ -176,8 +174,8 @@ enum SubmissionStatus {
 }
 
 enum MaterialType {
+  DOCUMENT
   LINK
-  FILE
-  YOUTUBE
-  DRIVE
+  IMAGE
+  VIDEO
 }

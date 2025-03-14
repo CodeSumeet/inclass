@@ -1,9 +1,10 @@
 import { FC, useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
-import { PlusCircle, Users, BookOpen } from "lucide-react";
+import { PlusCircle, Users, BookOpen, Upload, Camera } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getAvatarUrl } from "@/utils/getAvatarUrl";
+import { uploadToCloudinary } from "@/utils/cloudinaryUtils";
 import API from "@/services/api";
 import { UpdateProfileData } from "@/types/user.types";
 import { Button, Card, Input } from "@/components";
@@ -28,10 +29,16 @@ const ProfilePage: FC = () => {
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
   });
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [uploadingProfilePic, setUploadingProfilePic] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const avatarUrl = getAvatarUrl({
-    name: `${user?.firstName} ${user?.lastName}`,
-  });
+  // Use user's profile pic if available, otherwise use avatar
+  const avatarUrl =
+    user?.profilePic ||
+    getAvatarUrl({
+      name: `${user?.firstName} ${user?.lastName}`,
+    });
 
   useEffect(() => {
     const fetchClassrooms = async () => {
@@ -50,9 +57,55 @@ const ProfilePage: FC = () => {
     if (user) fetchClassrooms();
   }, [user]);
 
+  useEffect(() => {
+    // Create preview URL for the selected profile picture
+    if (profilePic) {
+      const objectUrl = URL.createObjectURL(profilePic);
+      setPreviewUrl(objectUrl);
+
+      // Clean up the URL when component unmounts or when file changes
+      return () => URL.revokeObjectURL(objectUrl);
+    }
+  }, [profilePic]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleProfilePicChange = (file: File | null) => {
+    setProfilePic(file);
+  };
+
+  const handleProfilePicUpload = async () => {
+    if (!profilePic || !user) return;
+
+    setUploadingProfilePic(true);
+    try {
+      const result = await uploadToCloudinary({
+        file: profilePic,
+        fileType: "profile",
+        userId: user.userId,
+      });
+
+      // Update user profile with new image URL
+      await updateProfile({
+        ...formData,
+        profilePic: result.secure_url,
+      } as UpdateProfileData);
+
+      toast.success("Profile picture updated successfully");
+      setProfilePic(null);
+      setPreviewUrl(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload profile picture"
+      );
+    } finally {
+      setUploadingProfilePic(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,7 +116,14 @@ const ProfilePage: FC = () => {
     }
 
     try {
-      await updateProfile(formData as UpdateProfileData);
+      // If there's a profile pic, upload it first
+      if (profilePic && user) {
+        await handleProfilePicUpload();
+      } else {
+        // Otherwise just update the profile data
+        await updateProfile(formData as UpdateProfileData);
+      }
+
       setIsEditing(false);
       toast.success("Profile updated successfully");
     } catch (error) {
@@ -104,11 +164,42 @@ const ProfilePage: FC = () => {
       <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
         <div className="flex items-center gap-6">
           <div className="relative">
-            <img
-              src={avatarUrl}
-              alt="Profile"
-              className="w-32 h-32 rounded-full"
-            />
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt="Profile Preview"
+                className="w-32 h-32 rounded-full object-cover"
+              />
+            ) : (
+              <img
+                src={avatarUrl}
+                alt="Profile"
+                className="w-32 h-32 rounded-full object-cover"
+              />
+            )}
+            {isEditing && (
+              <div className="absolute bottom-0 right-0">
+                <label
+                  htmlFor="profile-pic-upload"
+                  className="cursor-pointer"
+                >
+                  <div className="bg-primary text-white p-2 rounded-full hover:bg-primary/90 transition-colors">
+                    <Camera className="h-5 w-5" />
+                  </div>
+                  <input
+                    id="profile-pic-upload"
+                    type="file"
+                    className="hidden"
+                    accept="image/jpeg,image/png"
+                    onChange={(e) => {
+                      if (e.target.files && e.target.files[0]) {
+                        handleProfilePicChange(e.target.files[0]);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            )}
           </div>
           <div className="flex-1">
             <h1 className="text-2xl font-bold mb-1">
@@ -159,8 +250,34 @@ const ProfilePage: FC = () => {
                 />
               </div>
             </div>
+
+            {profilePic && (
+              <div className="mt-4 p-3 bg-gray-50 rounded-md">
+                <div className="flex items-center">
+                  <div className="mr-3">
+                    <img
+                      src={previewUrl || ""}
+                      alt="Preview"
+                      className="w-16 h-16 rounded-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">{profilePic.name}</p>
+                    <p className="text-xs text-gray-500">
+                      {(profilePic.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <div className="mt-4 flex gap-3">
-              <Button type="submit">Save Changes</Button>
+              <Button
+                type="submit"
+                loading={uploadingProfilePic}
+              >
+                Save Changes
+              </Button>
               <Button
                 type="button"
                 variant="outline"
@@ -170,7 +287,10 @@ const ProfilePage: FC = () => {
                     firstName: user?.firstName || "",
                     lastName: user?.lastName || "",
                   });
+                  setProfilePic(null);
+                  setPreviewUrl(null);
                 }}
+                disabled={uploadingProfilePic}
               >
                 Cancel
               </Button>

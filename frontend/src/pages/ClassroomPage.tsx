@@ -5,6 +5,7 @@ import {
   ClassroomHeader,
   ErrorState,
   LoadingState,
+  MaterialsList,
   ParticipantList,
   ScoresOverview,
 } from "@/components/features/classroom";
@@ -82,6 +83,12 @@ const ClassroomPage = () => {
               Assignments
             </TabsTrigger>
             <TabsTrigger
+              value="materials"
+              className="py-3 px-4 text-base flex-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium"
+            >
+              Materials
+            </TabsTrigger>
+            <TabsTrigger
               value="participants"
               className="py-3 px-4 text-base flex-1 data-[state=active]:bg-primary/10 data-[state=active]:text-primary font-medium"
             >
@@ -133,6 +140,14 @@ const ClassroomPage = () => {
               assignments={classroom.assignments}
               isTeacher={isTeacher}
               variant="full"
+            />
+          </TabsContent>
+
+          {/* Materials Tab */}
+          <TabsContent value="materials">
+            <MaterialsList
+              classroomId={classroomId}
+              isTeacher={isTeacher}
             />
           </TabsContent>
 

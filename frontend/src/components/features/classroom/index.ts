@@ -8,3 +8,5 @@ export { default as ErrorState } from "./ErrorState";
 export { default as LoadingState } from "./LoadingState";
 export { default as ParticipantList } from "./ParticipantList";
 export { default as ScoresOverview } from "./ScoresOverview";
+export { default as MaterialUploadModal } from "./materials/MaterialUploadModal";
+export { default as MaterialsList } from "./materials/MaterialsList";

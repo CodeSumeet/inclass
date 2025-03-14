@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/common/Button/Button";
 import { useAuthStore } from "@/store/useAuthStore";
 import { FileUpload, Input } from "../Input";
+import { uploadToCloudinary } from "@/utils/cloudinaryUtils";
 
 interface ClassCreationModalProps {
   isOpen: boolean;
@@ -39,10 +40,6 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
     e.preventDefault();
     setLoading(true);
     setError(null);
-    const formDataToSend = new FormData();
-    formDataToSend.append("name", formData.name);
-    formDataToSend.append("section", formData.section);
-    formDataToSend.append("subject", formData.subject);
 
     try {
       if (!user) {
@@ -51,25 +48,14 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
 
       let coverImageUrl = "";
       if (formData.coverImage) {
-        const formDataCloudinary = new FormData();
-        formDataCloudinary.append("file", formData.coverImage);
-        formDataCloudinary.append(
-          "upload_preset",
-          import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
-        );
+        // Use the cloudinary utility
+        const uploadResult = await uploadToCloudinary({
+          file: formData.coverImage,
+          fileType: "material",
+          classroomId: "covers", // Special folder for cover images
+        });
 
-        const cloudinaryResponse = await fetch(
-          `https://api.cloudinary.com/v1_1/${
-            import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-          }/image/upload`,
-          {
-            method: "POST",
-            body: formDataCloudinary,
-          }
-        );
-
-        const cloudinaryData = await cloudinaryResponse.json();
-        coverImageUrl = cloudinaryData.url;
+        coverImageUrl = uploadResult.secure_url;
       }
 
       await API.post("/classrooms/create", {
@@ -79,6 +65,7 @@ const ClassCreationModal: React.FC<ClassCreationModalProps> = ({
         coverImage: coverImageUrl,
         userId: user.userId,
       });
+
       toast.success("Class created successfully!");
       onClassCreated();
       onClose();

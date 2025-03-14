@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, FileText, Image, Video, File } from "lucide-react";
 
 type FileUploadProps = {
   label?: string;
   errorMessage?: string;
   className?: string;
-  onChange: (file: File | null) => void; // Callback to handle file change
+  onChange: (file: File | null) => void;
+  accept?: string; // Add accept prop to restrict file types
 };
 
 const FileUpload: React.FC<FileUploadProps> = ({
@@ -14,12 +15,15 @@ const FileUpload: React.FC<FileUploadProps> = ({
   errorMessage,
   className,
   onChange,
+  accept = "*", // Default to all files
 }) => {
   const [fileName, setFileName] = useState<string | null>(null);
+  const [fileType, setFileType] = useState<string | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] || null;
     setFileName(file ? file.name : null);
+    setFileType(file ? file.type : null);
     onChange(file);
   };
 
@@ -31,7 +35,29 @@ const FileUpload: React.FC<FileUploadProps> = ({
     event.preventDefault();
     const file = event.dataTransfer.files[0] || null;
     setFileName(file ? file.name : null);
+    setFileType(file ? file.type : null);
     onChange(file);
+  };
+
+  // Get appropriate icon based on file type
+  const getFileIcon = () => {
+    if (!fileType) return <File className="h-6 w-6 text-gray-400" />;
+
+    if (fileType.startsWith("image/")) {
+      return <Image className="h-6 w-6 text-purple-500" />;
+    } else if (fileType.startsWith("video/")) {
+      return <Video className="h-6 w-6 text-red-500" />;
+    } else if (
+      fileType.includes("pdf") ||
+      fileType.includes("word") ||
+      fileType.includes("excel") ||
+      fileType.includes("powerpoint") ||
+      fileType.includes("text/")
+    ) {
+      return <FileText className="h-6 w-6 text-blue-500" />;
+    }
+
+    return <File className="h-6 w-6 text-gray-500" />;
   };
 
   return (
@@ -46,7 +72,10 @@ const FileUpload: React.FC<FileUploadProps> = ({
         onClick={() => document.getElementById("file-input")?.click()}
       >
         {fileName ? (
-          <span className="text-gray-700">{fileName}</span>
+          <div className="flex items-center">
+            {getFileIcon()}
+            <span className="text-gray-700 ml-2">{fileName}</span>
+          </div>
         ) : (
           <span className="text-gray-400">
             Drag & drop your file here or click to select
@@ -56,6 +85,7 @@ const FileUpload: React.FC<FileUploadProps> = ({
           id="file-input"
           type="file"
           className="hidden"
+          accept={accept}
           onChange={handleFileChange}
         />
       </div>
