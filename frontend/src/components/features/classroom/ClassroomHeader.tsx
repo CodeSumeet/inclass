@@ -1,12 +1,15 @@
 import React from "react";
 import { Button } from "../../common/Button/Button";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, BarChart } from "lucide-react";
+import { Link, useParams } from "react-router-dom";
 
 interface ClassroomHeaderProps {
   classroom: any;
 }
 
 const ClassroomHeader: React.FC<ClassroomHeaderProps> = ({ classroom }) => {
+  const { classroomId } = useParams();
+
   return (
     <div className="relative h-56 md:h-72 w-full overflow-hidden shadow-md">
       <img
@@ -15,12 +18,22 @@ const ClassroomHeader: React.FC<ClassroomHeaderProps> = ({ classroom }) => {
         className="w-full h-full object-cover transition-transform hover:scale-105 duration-500"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-gray-800 via-gray-800/40 to-transparent"></div>
-      <Button
-        className="absolute top-4 left-4 bg-white/90 hover:bg-white text-gray-800"
-        onClick={() => window.history.back()}
-      >
-        <ChevronLeft className="mr-2 h-4 w-4" /> Back
-      </Button>
+      <div className="absolute top-4 left-4 flex items-center gap-2">
+        <Button
+          className="bg-white/90 hover:bg-white text-gray-800"
+          onClick={() => window.history.back()}
+        >
+          <ChevronLeft className="mr-2 h-4 w-4" /> Back
+        </Button>
+
+        <Link
+          to={`/classroom/${classroomId}/analytics`}
+          className="flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-800 rounded-md font-medium text-sm"
+        >
+          <BarChart className="h-4 w-4" />
+          Analytics
+        </Link>
+      </div>
       <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
         <h1 className="text-3xl md:text-4xl font-bold tracking-tight">
           {classroom.name}

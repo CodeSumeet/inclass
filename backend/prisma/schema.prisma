@@ -27,6 +27,9 @@ model User {
   materials      Material[]
   gradesGiven    Grade[]        @relation("GradedBy")
   quizAttemp     QuizAttempt[]
+  activityLogs ActivityLog[]
+  engagements  UserEngagement[]
+  performance  PerformanceMetric[]
 }
 
 model Classroom {
@@ -53,6 +56,9 @@ model Classroom {
   quiz          Quiz[]
   analyticsEvents AnalyticsEvent[]
   reports         Report[]
+  analytics    ClassroomAnalytics?
+  userEngagements UserEngagement[]
+  performanceMetrics PerformanceMetric[]
 }
 
 model Topic {
@@ -327,6 +333,67 @@ model Dashboard {
   layout      Json         // Dashboard widget layout
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+// ... existing schema code ...
+
+// New models for Analytics and Reporting
+
+model ActivityLog {
+  id           String    @id @default(uuid())
+  userId       String    // User who performed the activity
+  activityType String    // Type of activity (login, assignment_submission, quiz_attempt, etc.)
+  resourceId   String?   // ID of the related resource (classroom, assignment, quiz, etc.)
+  resourceType String?   // Type of resource (classroom, assignment, quiz, etc.)
+  metadata     Json?     // Additional data about the activity
+  createdAt    DateTime  @default(now())
+  
+  // Relation to User
+  user         User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+}
+
+model UserEngagement {
+  id           String    @id @default(uuid())
+  userId       String
+  classroomId  String
+  user         User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  classroom    Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  loginCount   Int       @default(0)
+  resourceViews Int      @default(0)
+  submissionCount Int    @default(0)
+  lastActive   DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([userId, classroomId])
+}
+
+model ClassroomAnalytics {
+  id                String    @id @default(uuid())
+  classroomId       String    @unique
+  classroom         Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  totalStudents     Int       @default(0)
+  activeStudents    Int       @default(0)
+  avgEngagementScore Float    @default(0)
+  lastUpdated       DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model PerformanceMetric {
+  id           String    @id @default(uuid())
+  userId       String
+  classroomId  String
+  user         User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  classroom    Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  assignmentCompletionRate Float @default(0)
+  quizAvgScore Float      @default(0)
+  attendanceRate Float    @default(0)
+  overallGrade  Float     @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([userId, classroomId])
 }
 
 // Enums for analytics
