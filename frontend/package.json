@@ -29,6 +29,7 @@
     "cloudinary": "^2.5.1",
     "cloudinary-core": "^2.13.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "firebase": "^11.2.0",
     "lucide-react": "^0.473.0",
     "pdfjs-dist": "^3.4.120",

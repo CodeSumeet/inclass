@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import asyncHandler from "../utils/asyncHandler";
 import * as ClassroomService from "../services/classroom.service";
+import prisma from "../config/db";
 
 export const createClassroom = asyncHandler(
   async (req: Request, res: Response) => {
@@ -56,5 +57,116 @@ export const removeStudent = asyncHandler(
     const { ownerId, classroomId, studentId } = req.body;
     await ClassroomService.removeStudent(ownerId, classroomId, studentId);
     res.status(200).json({ message: "Student removed successfully" });
+  }
+);
+
+export const getUserRoleInClassroom = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { classroomId } = req.params;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Check if the user is the owner of the classroom
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+    });
+
+    if (!classroom) {
+      return res.status(404).json({ message: "Classroom not found" });
+    }
+
+    if (classroom.ownerId === userId) {
+      return res.status(200).json({ role: "TEACHER" });
+    }
+
+    // Check if the user is enrolled in the classroom
+    const enrollment = await prisma.enrollment.findFirst({
+      where: {
+        userId,
+        classroomId,
+      },
+    });
+
+    if (!enrollment) {
+      return res
+        .status(403)
+        .json({ message: "User not enrolled in this classroom" });
+    }
+
+    return res.status(200).json({ role: enrollment.role });
+  }
+);
+
+export const getClassroomParticipants = asyncHandler(
+  async (req: Request, res: Response) => {
+    const { classroomId } = req.params;
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Check if the classroom exists
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+      include: {
+        owner: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            profilePic: true,
+          },
+        },
+      },
+    });
+
+    if (!classroom) {
+      return res.status(404).json({ message: "Classroom not found" });
+    }
+
+    // Check if the user is enrolled in the classroom
+    const userEnrollment = await prisma.enrollment.findFirst({
+      where: {
+        userId,
+        classroomId,
+      },
+    });
+
+    if (!userEnrollment && classroom.ownerId !== userId) {
+      return res
+        .status(403)
+        .json({ message: "You are not enrolled in this classroom" });
+    }
+
+    // Get all students enrolled in the classroom
+    const enrollments = await prisma.enrollment.findMany({
+      where: {
+        classroomId,
+        role: "STUDENT",
+      },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            profilePic: true,
+          },
+        },
+      },
+    });
+
+    const students = enrollments.map((enrollment) => enrollment.user);
+
+    return res.status(200).json({
+      teacher: classroom.owner,
+      students,
+    });
   }
 );

@@ -12,6 +12,8 @@ import ClassroomPage from "./pages/ClassroomPage";
 import CalendarPage from "./pages/CalendarPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import SettingsPage from "./pages/SettingsPage";
+import AssignmentDetailPage from "./components/features/classroom/assignment/AssignmentDetailPage";
+import QuizDetailPage from "./pages/QuizDetailPage";
 
 function App() {
   return (
@@ -51,6 +53,14 @@ function App() {
             <Route
               path="/classroom/:classroomId"
               element={<ClassroomPage />}
+            />
+            <Route
+              path="/classrooms/:classroomId/assignments/:assignmentId"
+              element={<AssignmentDetailPage />}
+            />
+            <Route
+              path="/classrooms/:classroomId/quizzes/:quizId"
+              element={<QuizDetailPage />}
             />
             <Route
               path="/calendar"

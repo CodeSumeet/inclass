@@ -3,7 +3,7 @@ import * as ClassroomController from "../controllers/classroom.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 import * as AnnouncementController from "../controllers/announcement.controller";
 import * as MaterialController from "../controllers/material.controller";
-
+import * as AssignmentController from "../controllers/assignment.controller";
 const router = Router();
 
 router.post("/create", authenticate, ClassroomController.createClassroom);
@@ -60,6 +60,26 @@ router.delete(
   "/materials/:materialId",
   authenticate,
   MaterialController.deleteMaterial
+);
+
+// Get user role in a classroom
+router.get(
+  "/:classroomId/role",
+  authenticate,
+  ClassroomController.getUserRoleInClassroom
+);
+
+// Get classroom assignments
+router.get(
+  "/:classroomId/assignments",
+  authenticate,
+  AssignmentController.getClassroomAssignments
+);
+
+router.get(
+  "/:classroomId/participants",
+  authenticate,
+  ClassroomController.getClassroomParticipants
 );
 
 export default router;

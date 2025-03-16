@@ -25,6 +25,8 @@ model User {
   comments       Comment[]
   submissions    Submission[]
   materials      Material[]
+  gradesGiven    Grade[]        @relation("GradedBy")
+  quizAttemp     QuizAttempt[]
 }
 
 model Classroom {
@@ -48,6 +50,9 @@ model Classroom {
   assignments   Assignment[]
   materials     Material[]
   topics        Topic[]
+  quiz          Quiz[]
+  analyticsEvents AnalyticsEvent[]
+  reports         Report[]
 }
 
 model Topic {
@@ -61,28 +66,29 @@ model Topic {
   assignments Assignment[]
 }
 
-   model Announcement {
-     id          String   @id @default(uuid())
-     content     String
-     classroomId String
-     createdById String
-     createdAt   DateTime @default(now())
-     updatedAt   DateTime @updatedAt
-
-     // Relations
-     classroom  Classroom @relation(fields: [classroomId], references: [id])
-     createdBy  User      @relation(fields: [createdById], references: [userId])
-     comments   Comment[]
-   }
+model Announcement {
+ id          String   @id @default(uuid())
+ content     String
+ classroomId String
+ createdById String
+ createdAt   DateTime @default(now())
+ updatedAt   DateTime @updatedAt
+ // Relations
+ classroom  Classroom @relation(fields: [classroomId], references: [id])
+ createdBy  User      @relation(fields: [createdById], references: [userId])
+ comments   Comment[]
+}
 
 model Assignment {
   id           String    @id @default(uuid())
   title        String
   instructions String
+  description  String    @default("") // Added for compatibility with frontend
   points       Int?
   dueDate      DateTime?
   topicId      String?
   classroomId  String
+  status       String    @default("ACTIVE") // Added: DRAFT, ACTIVE, CLOSED
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
@@ -91,6 +97,21 @@ model Assignment {
   topic       Topic?       @relation(fields: [topicId], references: [id])
   submissions Submission[]
   comments    Comment[]
+  attachments AssignmentAttachment[] // Added for file attachments
+}
+
+// New model for assignment attachments
+model AssignmentAttachment {
+  id           String    @id @default(uuid())
+  assignmentId String
+  url          String
+  fileName     String
+  fileType     String
+  fileSize     Int
+  createdAt    DateTime  @default(now())
+
+  // Relations
+  assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 }
 
 model Submission {
@@ -98,18 +119,50 @@ model Submission {
   assignmentId String
   studentId    String
   status       SubmissionStatus @default(ASSIGNED)
-  grade        Int?
-  feedback     String?
+  comment      String?          // Added for student comments
+  submissionDate DateTime       @default(now()) // Added for tracking submission time
   turnedInAt   DateTime?
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
 
   // Relations
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
-  student      User      @relation(fields: [studentId], references: [userId])
+  student      User       @relation(fields: [studentId], references: [userId])
   comments     Comment[]
+  attachments  SubmissionAttachment[] // Added for file attachments
+  grade        Grade?                 // Added for detailed grading
 
   @@unique([assignmentId, studentId])
+}
+
+// New model for submission attachments
+model SubmissionAttachment {
+  id           String    @id @default(uuid())
+  submissionId String
+  url          String
+  fileName     String
+  fileType     String
+  fileSize     Int
+  createdAt    DateTime  @default(now())
+
+  // Relations
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+}
+
+// New model for detailed grading
+model Grade {
+  id          String    @id @default(uuid())
+  submissionId String    @unique
+  points      Int
+  feedback    String?
+  gradedAt    DateTime  @default(now())
+  gradedById  String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  submission  Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  gradedBy    User       @relation(fields: [gradedById], references: [userId], name: "GradedBy")
 }
 
 model Material {
@@ -143,7 +196,7 @@ model Comment {
   // Relations
   createdBy    User         @relation(fields: [createdById], references: [userId])
   assignment   Assignment?  @relation(fields: [assignmentId], references: [id])
-  submission   Submission? @relation(fields: [submissionId], references: [id])
+  submission   Submission?  @relation(fields: [submissionId], references: [id])
   announcement Announcement? @relation(fields: [announcementId], references: [id])
 }
 
@@ -161,6 +214,155 @@ model Enrollment {
   @@unique([userId, classroomId])
 }
 
+
+model Quiz {
+  quizId        String       @id @default(uuid())
+  title         String
+  description   String?
+  instructions  String?
+  timeLimit     Int?         // Time limit in minutes, null means no limit
+  dueDate       DateTime?
+  classroomId   String
+  classroom     Classroom    @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  questions     Question[]
+  attempts      QuizAttempt[]
+  isPublished   Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Question {
+  questionId    String       @id @default(uuid())
+  quizId        String
+  quiz          Quiz         @relation(fields: [quizId], references: [quizId], onDelete: Cascade)
+  questionText  String
+  questionType  QuestionType
+  points        Int          @default(1)
+  options       Option[]
+  answers       Answer[]
+  orderIndex    Int          // For ordering questions in the quiz
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model Option {
+  optionId      String       @id @default(uuid())
+  questionId    String
+  question      Question     @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  optionText    String
+  isCorrect     Boolean      @default(false)
+  orderIndex    Int          // For ordering options in the question
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model QuizAttempt {
+  attemptId     String       @id @default(uuid())
+  quizId        String
+  quiz          Quiz         @relation(fields: [quizId], references: [quizId], onDelete: Cascade)
+  userId        String       // Changed from studentId to userId
+  user          User         @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  startedAt     DateTime     @default(now())
+  submittedAt   DateTime?
+  score         Float?       // Calculated score
+  answers       Answer[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([quizId, userId]) // One attempt per user per quiz
+}
+
+model Answer {
+  answerId      String       @id @default(uuid())
+  attemptId     String
+  attempt       QuizAttempt  @relation(fields: [attemptId], references: [attemptId], onDelete: Cascade)
+  questionId    String
+  question      Question     @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
+  selectedOptions String[]   // Array of selected option IDs
+  textAnswer    String?      // For text/essay questions
+  isCorrect     Boolean?     // Whether the answer is correct (null for essay questions)
+  points        Float?       // Points awarded for this answer
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([attemptId, questionId]) // One answer per question per attempt
+}
+
+// ... existing code ...
+
+// Analytics Models
+model AnalyticsEvent {
+  id          String    @id @default(uuid())
+  eventType   EventType
+  userId      String
+  classroomId String?
+  quizId      String?
+  resourceId  String?   // Generic ID for any resource (assignment, material, etc.)
+  metadata    Json?     // Additional event data
+  createdAt   DateTime  @default(now())
+
+  // Optional relations - using ? to avoid affecting existing data
+  classroom   Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+}
+
+model Report {
+  id          String       @id @default(uuid())
+  title       String
+  reportType  ReportType
+  classroomId String
+  createdById String
+  parameters  Json?        // Report configuration parameters
+  data        Json?        // Cached report data
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  
+  // Relations
+  classroom   Classroom    @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+}
+
+model Dashboard {
+  id          String       @id @default(uuid())
+  userId      String
+  title       String       @default("My Dashboard")
+  layout      Json         // Dashboard widget layout
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+// Enums for analytics
+enum EventType {
+  LOGIN
+  LOGOUT
+  VIEW_CLASSROOM
+  VIEW_QUIZ
+  START_QUIZ
+  SUBMIT_QUIZ
+  CREATE_QUIZ
+  VIEW_MATERIAL
+  DOWNLOAD_MATERIAL
+  CREATE_MATERIAL
+  JOIN_CLASSROOM
+  CREATE_CLASSROOM
+  OTHER
+}
+
+enum ReportType {
+  QUIZ_PERFORMANCE
+  STUDENT_ENGAGEMENT
+  CLASSROOM_ACTIVITY
+  MATERIAL_USAGE
+  ATTENDANCE
+  CUSTOM
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  MULTIPLE_ANSWER
+  TRUE_FALSE
+  SHORT_ANSWER
+  ESSAY
+}
+
 enum Role {
   TEACHER
   STUDENT
@@ -171,6 +373,8 @@ enum SubmissionStatus {
   TURNED_IN
   RETURNED
   GRADED
+  SUBMITTED  // Added for compatibility with frontend
+  LATE       // Added for late submissions
 }
 
 enum MaterialType {
