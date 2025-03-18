@@ -23,6 +23,7 @@ import API from "@/services/api";
 import { getClassroomAssignments } from "@/services/api/assignment";
 import { Assignment } from "@/types/assignment.types";
 import QuizList from "@/components/features/classroom/quiz/QuizList";
+import MeetingControls from "@/components/features/videoConference/MeetingControls";
 
 const ClassroomPage = () => {
   const { user } = useAuthStore();
@@ -92,6 +93,11 @@ const ClassroomPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <ClassroomHeader classroom={classroom} />
+
+      <MeetingControls
+        classroomId={classroomId}
+        isTeacher={classroom?.ownerId === user?.userId}
+      />
 
       <div className="container mx-auto px-4 md:px-6 py-8 max-w-6xl">
         {/* Announcement input */}

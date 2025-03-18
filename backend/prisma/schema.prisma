@@ -30,6 +30,8 @@ model User {
   activityLogs ActivityLog[]
   engagements  UserEngagement[]
   performance  PerformanceMetric[]
+  videoConferences VideoConference[]
+  videoConferenceParticipants VideoConferenceParticipant[]
 }
 
 model Classroom {
@@ -59,6 +61,7 @@ model Classroom {
   analytics    ClassroomAnalytics?
   userEngagements UserEngagement[]
   performanceMetrics PerformanceMetric[]
+  videoConferences VideoConference[]
 }
 
 model Topic {
@@ -394,6 +397,40 @@ model PerformanceMetric {
   updatedAt    DateTime   @updatedAt
 
   @@unique([userId, classroomId])
+}
+
+model VideoConference {
+  id          String    @id @default(uuid())
+  classroomId String
+  classroom   Classroom @relation(fields: [classroomId], references: [id])
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [userId])
+  roomName    String
+  roomUrl     String
+  status      String    // ACTIVE, ENDED
+  startTime   DateTime
+  endTime     DateTime?
+  metadata    Json?
+  
+  participants VideoConferenceParticipant[]
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model VideoConferenceParticipant {
+  id           String          @id @default(uuid())
+  conferenceId String
+  conference   VideoConference @relation(fields: [conferenceId], references: [id])
+  userId       String
+  user         User            @relation(fields: [userId], references: [userId])
+  joinTime     DateTime
+  leaveTime    DateTime?
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@unique([conferenceId, userId])
 }
 
 // Enums for analytics

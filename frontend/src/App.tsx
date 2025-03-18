@@ -15,6 +15,7 @@ import SettingsPage from "./pages/SettingsPage";
 import AssignmentDetailPage from "./components/features/classroom/assignment/AssignmentDetailPage";
 import QuizDetailPage from "./pages/QuizDetailPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import VideoConferencePage from "./pages/VideoConferencePage";
 
 function App() {
   return (
@@ -66,6 +67,10 @@ function App() {
             <Route
               path="/classroom/:classroomId/analytics"
               element={<AnalyticsPage />}
+            />
+            <Route
+              path="/meeting/:meetingId"
+              element={<VideoConferencePage />}
             />
 
             <Route
