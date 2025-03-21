@@ -19,6 +19,7 @@ interface AuthState {
   setError: (error: string | null) => void;
   setLoading: (isLoading: boolean) => void;
   updateProfile: (data: UpdateProfileData) => Promise<void>;
+  updateProfilePicture: (url: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   loginWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (
@@ -36,6 +37,22 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   isInitialized: false,
   error: null,
 
+  updateProfilePicture: async (url: string) => {
+    try {
+      const user = get().user;
+      if (!user) throw new Error("No user logged in");
+
+      const response = await api.put(`/users/${user.userId}`, {
+        profilePic: url,
+      });
+
+      set({ user: { ...user, profilePic: response.data.profilePic } });
+    } catch (error) {
+      set({ error: (error as Error).message });
+      throw error;
+    }
+  },
+
   setUser: async (firebaseUser) => {
     if (!firebaseUser) {
       set({ user: null, isInitialized: true, isLoading: false });
@@ -50,6 +67,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         email: firebaseUser.email || "",
         firstName: response.data.firstName,
         lastName: response.data.lastName,
+        profilePic: response.data.profilePic,
       };
 
       set({ user: userData, isInitialized: true, isLoading: false });
@@ -61,6 +79,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
           email: firebaseUser.email || "",
           firstName: "",
           lastName: "",
+          profilePic: "",
         },
         isInitialized: true,
         isLoading: false,
@@ -154,7 +173,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 }));
 
-// Initialize auth state listener
 auth.onAuthStateChanged((user) => {
   const store = useAuthStore.getState();
   store.setUser(user);

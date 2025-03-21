@@ -3,15 +3,46 @@ import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import Logo from "@/assets/inclasslogo.svg";
 import { Button } from "@/components/common";
+import { useAuthStore } from "@/store/useAuthStore";
+import { logout } from "@/services";
 
 const navItems = [
-  { label: "Features", href: "#features" },
-  { label: "How It Works", href: "#how-it-works" },
-  { label: "Pricing", href: "#pricing" },
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    authRequired: true,
+  },
+  {
+    label: "My Classrooms",
+    href: "/classrooms",
+    authRequired: true,
+  },
+  {
+    label: "Assignments",
+    href: "/assignments",
+    authRequired: true,
+  },
+  {
+    label: "Materials",
+    href: "/materials",
+    authRequired: true,
+  },
+];
+
+const publicNavItems = [
+  {
+    label: "Features",
+    href: "#features",
+  },
+  {
+    label: "How It Works",
+    href: "#how-it-works",
+  },
 ];
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuthStore(); // Add this to check authentication status
 
   const toggleMenu = useCallback(() => setIsOpen((prev) => !prev), []);
 
@@ -25,11 +56,13 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const displayNavItems = user ? navItems : publicNavItems;
+
   return (
     <header className="w-full h-[68px] bg-white border-b border-gray-200 relative shadow-sm">
       <div className="container mx-auto h-full px-4 flex items-center justify-between">
         <Link
-          to="/"
+          to={user ? "/dashboard" : "/"}
           className="flex items-center gap-2.5 group"
         >
           <img
@@ -47,35 +80,47 @@ const Navbar: React.FC = () => {
           className="hidden md:flex space-x-8"
           role="navigation"
         >
-          {navItems.map(({ label, href }) => (
-            <a
+          {displayNavItems.map(({ label, href }) => (
+            <Link
               key={href}
-              href={href}
+              to={href}
               className="text-gray-600 hover:text-primary transition-colors"
             >
               {label}
-            </a>
+            </Link>
           ))}
         </nav>
 
-        <div className="hidden md:flex items-center space-x-4">
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-gray-200 hover:border-primary"
-          >
-            <Link to="/auth/sign-in">Sign in</Link>
-          </Button>
-          <Button size="sm">
-            <Link to="/auth/sign-up">Sign up</Link>
-          </Button>
+        <div className="hidden md:flex items-center gap-4">
+          {user ? (
+            <>
+              <Button
+                variant="outline"
+                className="border-gray-200 hover:border-primary"
+              >
+                <Link to="/profile">Profile</Link>
+              </Button>
+              <Button onClick={() => logout()}>Sign Out</Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                className="border-gray-200 hover:border-primary"
+              >
+                <Link to="/auth/sign-in">Sign in</Link>
+              </Button>
+              <Button>
+                <Link to="/auth/sign-up">Get Started</Link>
+              </Button>
+            </>
+          )}
         </div>
 
         <button
-          className="md:hidden focus:outline-none"
+          className="md:hidden"
           onClick={toggleMenu}
           aria-label="Toggle menu"
-          aria-expanded={isOpen ? "true" : "false"}
         >
           {isOpen ? (
             <X
@@ -94,41 +139,71 @@ const Navbar: React.FC = () => {
       {isOpen && (
         <div className="absolute top-[68px] left-0 right-0 bg-white border-b border-gray-200 shadow-lg md:hidden">
           <div className="px-4 py-4 space-y-4">
-            {navItems.map(({ label, href }) => (
-              <a
+            {displayNavItems.map(({ label, href }) => (
+              <Link
                 key={href}
-                href={href}
+                to={href}
                 className="block text-gray-600 hover:text-primary transition-colors"
                 onClick={toggleMenu}
               >
                 {label}
-              </a>
+              </Link>
             ))}
             <div className="space-y-2 pt-2 border-t border-gray-100">
-              <Button
-                variant="outline"
-                size="sm"
-                fullWidth
-                className="border-gray-200 hover:border-primary"
-              >
-                <Link
-                  to="/auth/sign-in"
-                  onClick={toggleMenu}
-                >
-                  Sign in
-                </Link>
-              </Button>
-              <Button
-                size="sm"
-                fullWidth
-              >
-                <Link
-                  to="/auth/sign-up"
-                  onClick={toggleMenu}
-                >
-                  Sign up
-                </Link>
-              </Button>
+              {user ? (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    fullWidth
+                    className="border-gray-200 hover:border-primary"
+                  >
+                    <Link
+                      to="/profile"
+                      onClick={toggleMenu}
+                    >
+                      Profile
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    fullWidth
+                    onClick={() => {
+                      logout();
+                      toggleMenu();
+                    }}
+                  >
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    fullWidth
+                    className="border-gray-200 hover:border-primary"
+                  >
+                    <Link
+                      to="/auth/sign-in"
+                      onClick={toggleMenu}
+                    >
+                      Sign in
+                    </Link>
+                  </Button>
+                  <Button
+                    size="sm"
+                    fullWidth
+                  >
+                    <Link
+                      to="/auth/sign-up"
+                      onClick={toggleMenu}
+                    >
+                      Get Started
+                    </Link>
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         </div>

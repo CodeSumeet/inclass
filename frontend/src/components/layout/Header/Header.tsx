@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Menu, Search, Settings, LogOut, User } from "lucide-react";
+import { Menu, Settings, LogOut, User, Bell } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getAvatarUrl } from "@/utils/getAvatarUrl";
 import {
@@ -10,7 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  Input,
 } from "@/components/common";
 
 const Header: FC = () => {
@@ -27,14 +26,11 @@ const Header: FC = () => {
     }
   };
 
-  const avatarUrl = getAvatarUrl({
-    name: `${user?.firstName} ${user?.lastName}`,
-  });
+  const avatarUrl = user?.profilePic;
 
   return (
     <header className="sticky top-0 z-20 bg-white border-b border-gray-200">
       <div className="h-16 px-6 flex items-center justify-between gap-4">
-        {/* Left Section */}
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -48,94 +44,85 @@ const Header: FC = () => {
           </h1>
         </div>
 
-        {/* Center Section - Search */}
-        <div className="flex-1 max-w-xl hidden md:block">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full pl-10 bg-gray-50"
-            />
-          </div>
-        </div>
-
-        {/* Right Section - Profile */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-9 w-9 p-0 rounded-full"
-            >
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                className="w-full h-full rounded-full object-cover"
-              />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent
-            align="end"
-            className="w-56"
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0"
+            onClick={() => navigate("/notifications")}
           >
-            <div className="flex items-center gap-3 p-2">
-              <img
-                src={avatarUrl}
-                alt="Profile"
-                className="h-10 w-10 rounded-full object-cover"
-              />
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">
-                  {user?.firstName} {user?.lastName}
-                </span>
-                <span className="text-xs text-gray-500 truncate">
-                  {user?.email}
-                </span>
-              </div>
-            </div>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate("/profile")}>
-              <User className="mr-2 h-4 w-4" />
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => navigate("/settings")}>
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleLogout}
-              className="text-red-600 focus:text-red-600"
+            <Bell className="h-5 w-5" />
+          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 p-0 rounded-full"
+              >
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="w-full h-full rounded-full object-cover"
+                />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="w-56"
             >
-              <LogOut className="mr-2 h-4 w-4" />
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <div className="flex items-center gap-3 p-2">
+                <img
+                  src={avatarUrl}
+                  alt="Profile"
+                  className="h-10 w-10 rounded-full object-cover"
+                />
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">
+                    {user?.firstName} {user?.lastName}
+                  </span>
+                  <span className="text-xs text-gray-500 truncate">
+                    {user?.email}
+                  </span>
+                </div>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate("/profile")}>
+                <User className="mr-2 h-4 w-4" />
+                Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/settings")}>
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleLogout}
+                className="text-red-600 focus:text-red-600"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
     </header>
   );
 };
 
 const getPageTitle = (pathname: string) => {
-  switch (pathname) {
-    case "/dashboard":
-      return "Dashboard";
-    case "/classes":
-      return "My Classes";
-    case "/calendar":
-      return "Calendar";
-    case "/notifications":
-      return "Notifications";
-    case "/settings":
-      return "Settings";
-    default:
-      if (pathname.startsWith("/classroom/")) {
-        return "Classroom";
-      }
-      return "";
-  }
+  const titles: Record<string, string> = {
+    "/dashboard": "Dashboard",
+    "/classes": "My Classes",
+    "/profile": "Profile",
+    "/settings": "Settings",
+    "/notifications": "Notifications",
+  };
+
+  if (pathname.startsWith("/classroom/")) return "Classroom";
+  return titles[pathname] || "";
 };
 
 export default Header;

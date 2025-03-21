@@ -1,15 +1,73 @@
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, Calendar, BookOpen, Plus } from "lucide-react";
+import { Home, BookOpen, Settings, GraduationCap, School } from "lucide-react";
 import Logo from "@/assets/inclasslogo.svg";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/common";
+import { useAuthStore } from "@/store/useAuthStore";
+import { getUserClassrooms, getUserEnrollments } from "@/services/api/user";
 
 interface SidebarProps {
   className?: string;
 }
 
+interface Classroom {
+  id: string;
+  name: string;
+  section?: string;
+  isTeacher: boolean;
+}
+
 const Sidebar: FC<SidebarProps> = ({ className }) => {
+  const { user } = useAuthStore();
+  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+
+  const mainNavItems = [
+    {
+      to: "/dashboard",
+      icon: <Home className="h-5 w-5" />,
+      label: "Dashboard",
+    },
+    {
+      to: "/classes",
+      icon: <BookOpen className="h-5 w-5" />,
+      label: "My Classrooms",
+    },
+  ];
+
+  useEffect(() => {
+    const fetchClassrooms = async () => {
+      if (!user?.userId) return;
+
+      try {
+        const [ownedClassrooms, enrollments] = await Promise.all([
+          getUserClassrooms(user.userId),
+          getUserEnrollments(user.userId),
+        ]);
+
+        const formattedClassrooms = [
+          ...ownedClassrooms.map((classroom: any) => ({
+            id: classroom.id,
+            name: classroom.name,
+            section: classroom.section,
+            isTeacher: true,
+          })),
+          ...enrollments.map((enrollment: any) => ({
+            id: enrollment.id,
+            name: enrollment.name,
+            section: enrollment.section,
+            isTeacher: false,
+          })),
+        ];
+
+        setClassrooms(formattedClassrooms);
+      } catch (error) {
+        console.error("Error fetching classrooms:", error);
+      }
+    };
+
+    fetchClassrooms();
+  }, [user?.userId]);
+
   return (
     <aside
       className={cn(
@@ -20,7 +78,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
       {/* Logo */}
       <div className="h-16 flex items-center gap-2 px-6 border-b border-gray-200">
         <Link
-          to="/"
+          to="/dashboard"
           className="flex items-center gap-2"
         >
           <img
@@ -36,70 +94,69 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
       </div>
 
       {/* Main Navigation */}
-      <div className="flex-1 flex flex-col gap-1 p-4">
-        {/* Quick Actions */}
-        <div className="mb-4">
-          <Button
-            className="w-full justify-start gap-2"
-            size="sm"
-          >
-            <Plus className="h-4 w-4" />
-            Create Class
-          </Button>
-        </div>
-
+      <div className="flex-1 flex flex-col gap-1 p-4 overflow-y-auto">
         {/* Primary Navigation */}
-        <NavLink
-          to="/dashboard"
-          icon={<Home className="h-4 w-4" />}
-        >
-          Dashboard
-        </NavLink>
-        <NavLink
-          to="/classes"
-          icon={<BookOpen className="h-4 w-4" />}
-        >
-          My Classes
-        </NavLink>
-        <NavLink
-          to="/calendar"
-          icon={<Calendar className="h-4 w-4" />}
-        >
-          Calendar
-        </NavLink>
+        <nav className="space-y-1">
+          {mainNavItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              icon={item.icon}
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
 
-        {/* Enrolled Classes */}
-        <div className="mt-6">
-          <h3 className="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-            My Classes
-          </h3>
-          <div className="space-y-1">
-            <NavLink
-              to="/classroom/1"
-              className="pl-3"
-            >
-              <div className="truncate">
-                <div className="font-medium truncate">Web Development</div>
-                <div className="text-xs text-gray-500 truncate">Section A</div>
-              </div>
-            </NavLink>
-            <NavLink
-              to="/classroom/2"
-              className="pl-3"
-            >
-              <div className="truncate">
-                <div className="font-medium truncate">Mobile Development</div>
-                <div className="text-xs text-gray-500 truncate">Section B</div>
-              </div>
-            </NavLink>
+        {/* Classrooms List */}
+        {classrooms.length > 0 && (
+          <div className="mt-6">
+            <h3 className="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+              My Classrooms
+            </h3>
+            <div className="space-y-1">
+              {classrooms.map((classroom) => (
+                <NavLink
+                  key={classroom.id}
+                  to={`/classroom/${classroom.id}`}
+                  icon={
+                    classroom.isTeacher ? (
+                      <School className="h-4 w-4" />
+                    ) : (
+                      <GraduationCap className="h-4 w-4" />
+                    )
+                  }
+                  className="pl-3"
+                >
+                  <div className="flex flex-col">
+                    <span className="font-medium">{classroom.name}</span>
+                    {classroom.section && (
+                      <span className="text-xs text-gray-500">
+                        {classroom.section}
+                      </span>
+                    )}
+                  </div>
+                </NavLink>
+              ))}
+            </div>
           </div>
+        )}
+
+        {/* Settings at the bottom */}
+        <div className="mt-auto pt-4 border-t border-gray-200">
+          <NavLink
+            to="/settings"
+            icon={<Settings className="h-5 w-5" />}
+          >
+            Settings
+          </NavLink>
         </div>
       </div>
     </aside>
   );
 };
 
-// NavLink Component
+// NavLink Component remains the same
 interface NavLinkProps {
   to: string;
   icon?: React.ReactNode;
@@ -124,7 +181,7 @@ const NavLink: FC<NavLinkProps> = ({ to, icon, children, className }) => {
       )}
     >
       {icon}
-      {children}
+      <span className="flex-1">{children}</span>
     </Link>
   );
 };

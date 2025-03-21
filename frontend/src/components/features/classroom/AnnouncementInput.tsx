@@ -1,7 +1,6 @@
 import React from "react";
 import { Card } from "../../common/Card";
 import AnnouncementEditor from "./AnnouncementEditor";
-import { getAvatarUrl } from "../../../utils/getAvatarUrl";
 
 interface AnnouncementInputProps {
   user: any;
@@ -10,6 +9,7 @@ interface AnnouncementInputProps {
   announcement: string;
   setAnnouncement: (value: string) => void;
   onSubmit: () => void;
+  isSubmitting?: boolean;
 }
 
 const AnnouncementInput: React.FC<AnnouncementInputProps> = ({
@@ -19,6 +19,7 @@ const AnnouncementInput: React.FC<AnnouncementInputProps> = ({
   announcement,
   setAnnouncement,
   onSubmit,
+  isSubmitting = false,
 }) => {
   return (
     <Card className="mb-8 overflow-hidden">
@@ -27,10 +28,7 @@ const AnnouncementInput: React.FC<AnnouncementInputProps> = ({
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 overflow-hidden">
             {user ? (
               <img
-                src={getAvatarUrl({
-                  name: `${user.firstName} ${user.lastName}`,
-                  size: 40,
-                })}
+                src={user.profilePic}
                 alt="Teacher"
                 className="w-full h-full object-cover"
               />
@@ -59,6 +57,7 @@ const AnnouncementInput: React.FC<AnnouncementInputProps> = ({
                     setIsEditing(false);
                   }}
                   onSubmit={onSubmit}
+                  disabled={isSubmitting}
                 />
               </div>
             )}

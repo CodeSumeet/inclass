@@ -38,7 +38,7 @@ export const signUpWithEmail = async (
 
     const firebaseUid = userCredential.user.uid;
 
-    await API.post("/auth/sign-up", {
+    const response = await API.post("/auth/sign-up", {
       firebaseUid,
       email,
       firstName,
@@ -47,6 +47,7 @@ export const signUpWithEmail = async (
 
     return {
       user: userCredential.user,
+      userData: response.data,
       message: "User signed up successfully!",
     };
   } catch (error: any) {
@@ -62,8 +63,8 @@ export const signInWithGoogle = async () => {
 
     const firebaseUid = user.uid;
     const email = user.email;
-    const firstName = user.displayName?.split(" ")[0];
-    const lastName = user.displayName?.split(" ")[1];
+    const firstName = user.displayName?.split(" ")[0] || "";
+    const lastName = user.displayName?.split(" ")[1] || "";
 
     const { data } = await API.get(
       `/auth/check-user-exists?firebaseUid=${firebaseUid}`

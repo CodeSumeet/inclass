@@ -19,7 +19,6 @@ const AnnouncementList: React.FC<AnnouncementListProps> = ({
   isDeleting,
 }) => {
   useEffect(() => {
-    // Process announcement content after render
     setTimeout(processAnnouncementContent, 100);
   }, [announcements]);
 
@@ -41,7 +40,6 @@ const AnnouncementList: React.FC<AnnouncementListProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Add CSS for rich text rendering */}
       <style>{`
         .announcement-content h1 {
           font-size: 1.5rem;

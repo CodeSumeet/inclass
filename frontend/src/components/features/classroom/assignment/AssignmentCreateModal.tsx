@@ -149,11 +149,13 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
       return;
     }
 
+    if (loading) return; // Prevent duplicate submissions
+
     setLoading(true);
     setError(null);
 
     try {
-      // Create the assignment
+      // Prepare assignment data
       const assignmentData = {
         classroomId,
         title: title.trim(),
@@ -164,31 +166,31 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
         status: isDraft ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE,
       };
 
-      const assignment = await createAssignment(assignmentData);
-
-      // If there's a file, upload it and attach to the assignment
+      // If there's a file, upload it first
+      let attachments = undefined;
       if (file) {
         const uploadResult = await uploadToCloudinary({
           file,
           fileType: "assignment",
           userId: user.userId,
           classroomId,
-          assignmentId: assignment.id,
         });
 
-        // Add the attachment to the assignment
-        await createAssignment({
-          ...assignment,
-          attachments: [
-            {
-              url: uploadResult.secure_url,
-              fileName: file.name,
-              fileType: file.type,
-              fileSize: file.size,
-            },
-          ],
-        });
+        attachments = [
+          {
+            url: uploadResult.secure_url,
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+          },
+        ];
       }
+
+      // Create assignment only once with attachments if they exist
+      await createAssignment({
+        ...assignmentData,
+        attachments,
+      });
 
       toast.success(
         `Assignment ${isDraft ? "saved as draft" : "created"} successfully!`

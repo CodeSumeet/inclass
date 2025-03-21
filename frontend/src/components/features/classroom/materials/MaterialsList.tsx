@@ -33,32 +33,6 @@ const MaterialsList: React.FC<MaterialsListProps> = ({
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [viewingMaterial, setViewingMaterial] = useState<Material | null>(null);
 
-  const getDownloadableUrl = (url: string, fileType?: string): string => {
-    if (!url) return "";
-
-    // Check if this is a Cloudinary URL
-    if (url.includes("cloudinary.com")) {
-      const isPdf =
-        fileType?.includes("pdf") || url.toLowerCase().endsWith(".pdf");
-      const isDocument =
-        fileType?.includes("document") ||
-        fileType?.includes("word") ||
-        fileType?.includes("powerpoint") ||
-        /\.(docx?|pptx?)$/i.test(url);
-
-      if (isPdf || isDocument) {
-        // For PDFs and documents, ensure we have the fl_attachment flag
-        if (url.includes("/raw/upload/")) {
-          return url.replace("/raw/upload/", "/image/upload/fl_attachment/");
-        } else if (url.includes("/upload/") && !url.includes("fl_attachment")) {
-          return url.replace("/upload/", "/upload/fl_attachment/");
-        }
-      }
-    }
-
-    return url;
-  };
-
   const fetchMaterials = async () => {
     setLoading(true);
     setError(null);
@@ -132,7 +106,6 @@ const MaterialsList: React.FC<MaterialsListProps> = ({
   };
 
   const canPreview = (material: Material) => {
-    // Check if the material can be previewed
     const isPdf =
       material.url.toLowerCase().endsWith(".pdf") ||
       (material.fileType && material.fileType.includes("pdf"));
@@ -254,25 +227,6 @@ const MaterialsList: React.FC<MaterialsListProps> = ({
                           <Eye className="h-4 w-4 mr-1" /> View
                         </Button>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-green-500 hover:bg-green-50"
-                        onClick={() => {
-                          const downloadUrl = getDownloadableUrl(
-                            material.url,
-                            material.fileType
-                          );
-                          const link = document.createElement("a");
-                          link.href = downloadUrl;
-                          link.download = material.title;
-                          document.body.appendChild(link);
-                          link.click();
-                          document.body.removeChild(link);
-                        }}
-                      >
-                        <Download className="h-4 w-4 mr-1" /> Download
-                      </Button>
                       {isTeacher && (
                         <Button
                           variant="ghost"

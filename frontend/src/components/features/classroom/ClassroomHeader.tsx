@@ -11,7 +11,7 @@ const ClassroomHeader: React.FC<ClassroomHeaderProps> = ({ classroom }) => {
   const { classroomId } = useParams();
 
   return (
-    <div className="relative h-56 md:h-72 w-full overflow-hidden shadow-md">
+    <div className="relative h-56 md:h-72 w-full overflow-hidden shadow-md mb-4">
       <img
         src={classroom.coverImage || "/placeholder.svg"}
         alt={`${classroom.name} cover`}

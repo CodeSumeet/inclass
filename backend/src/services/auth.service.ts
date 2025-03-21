@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { getAvatarUrl } from "../utils/avatarUtils";
 
 const prisma = new PrismaClient();
 
@@ -17,12 +18,19 @@ export const signUpUser = async (userData: {
       );
     }
 
+    // Generate avatar URL using the user's name
+    const avatarUrl = getAvatarUrl({
+      name: `${firstName} ${lastName}`,
+      size: 200, // Higher resolution for storage
+    });
+
     const user = await prisma.user.create({
       data: {
         userId: firebaseUid,
         firstName,
         lastName,
         email,
+        profilePic: avatarUrl, // Store the avatar URL
       },
     });
 

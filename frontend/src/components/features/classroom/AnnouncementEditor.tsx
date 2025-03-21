@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css"; // Import Quill styles
+import "react-quill/dist/quill.snow.css";
 import { Button } from "../../common/Button/Button";
 import { Send } from "lucide-react";
 import { toast } from "sonner";
@@ -26,13 +26,10 @@ const AnnouncementEditor: React.FC<AnnouncementEditorProps> = ({
   const [isUploading, setIsUploading] = useState(false);
   const [quillReady, setQuillReady] = useState(false);
 
-  // Initialize Quill modules safely
   useEffect(() => {
     if (typeof window !== "undefined") {
-      // Only run this code on the client side
       const Quill = ReactQuill.Quill;
       if (Quill) {
-        // Register custom image handler
         const toolbar = Quill.import("modules/toolbar");
         if (toolbar && toolbar.prototype) {
           toolbar.prototype.handlers = {
@@ -47,10 +44,8 @@ const AnnouncementEditor: React.FC<AnnouncementEditorProps> = ({
                 if (input.files && input.files[0]) {
                   const file = input.files[0];
 
-                  // Check file size
-                  if (file.size > 5 * 1024 * 1024) {
-                    // 5MB limit for announcement images
-                    toast.error("Image size should be less than 5MB");
+                  if (file.size > 20 * 1024 * 1024) {
+                    toast.error("Image size should be less than 20MB");
                     return;
                   }
 
@@ -58,28 +53,24 @@ const AnnouncementEditor: React.FC<AnnouncementEditorProps> = ({
                     setIsUploading(true);
                     toast.loading("Uploading image...");
 
-                    // Use the cloudinary utility with a special folder for announcement images
                     const result = await uploadToCloudinary({
                       file,
-                      fileType: "material", // Using material preset but with a specific folder
-                      classroomId: "announcements", // Using a special folder name
+                      fileType: "material",
+                      classroomId: "announcements",
                     });
 
                     toast.dismiss();
                     toast.success("Image uploaded successfully");
 
-                    // Get the Quill editor instance
                     const quillEditor = this.quill;
                     const range = quillEditor.getSelection(true);
 
-                    // Insert image at cursor position
                     quillEditor.insertEmbed(
                       range.index,
                       "image",
                       result.secure_url
                     );
 
-                    // Move cursor after image
                     quillEditor.setSelection(range.index + 1);
                   } catch (error) {
                     console.error("Error uploading image:", error);
@@ -98,7 +89,6 @@ const AnnouncementEditor: React.FC<AnnouncementEditorProps> = ({
     }
   }, []);
 
-  // Quill modules configuration
   const modules = {
     toolbar: [
       [{ header: [1, 2, false] }],
@@ -108,12 +98,10 @@ const AnnouncementEditor: React.FC<AnnouncementEditorProps> = ({
       ["clean"],
     ],
     clipboard: {
-      // toggle to add extra line breaks when pasting HTML:
       matchVisual: false,
     },
   };
 
-  // Quill formats
   const formats = [
     "header",
     "bold",

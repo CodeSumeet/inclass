@@ -18,13 +18,23 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
   onDelete,
   isDeleting,
 }) => {
-  // Extract author name for avatar generation
   let authorName = "User";
+  let profilePic = "";
+
   if (announcement.createdBy) {
     authorName = `${announcement.createdBy.firstName} ${announcement.createdBy.lastName}`;
-  } else if (announcement.author && announcement.author.name) {
+    profilePic = announcement.createdBy.profilePic;
+  } else if (announcement.author) {
     authorName = announcement.author.name;
+    profilePic = announcement.author.avatar;
   }
+
+  const avatarSrc =
+    profilePic ||
+    getAvatarUrl({
+      name: authorName,
+      size: 40,
+    });
 
   const canDelete =
     isTeacher ||
@@ -38,10 +48,7 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
         <div className="flex items-start gap-3 mb-4">
           <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary flex-shrink-0 overflow-hidden">
             <img
-              src={getAvatarUrl({
-                name: authorName,
-                size: 40,
-              })}
+              src={avatarSrc}
               alt={authorName}
               className="w-full h-full object-cover"
             />
@@ -49,13 +56,7 @@ const AnnouncementCard: React.FC<AnnouncementCardProps> = ({
           <div className="flex-1">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-gray-800">
-                  {announcement.createdBy
-                    ? `${announcement.createdBy.firstName} ${announcement.createdBy.lastName}`
-                    : announcement.author
-                    ? announcement.author.name
-                    : "Unknown User"}
-                </h4>
+                <h4 className="font-medium text-gray-800">{authorName}</h4>
                 <p className="text-xs text-gray-500">
                   {new Date(announcement.createdAt).toLocaleDateString(
                     "en-US",

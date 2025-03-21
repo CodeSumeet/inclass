@@ -5,47 +5,60 @@ import {
   Users,
   Video,
   MessageCircle,
-  Calendar,
   Award,
   CheckCircle,
+  FileText,
 } from "lucide-react";
 import HeroImage from "@/assets/hero-illustration.svg";
 import { Button, Navbar } from "@/components";
+import { Link } from "react-router-dom";
 
 const features = [
   {
     icon: BookOpen,
-    title: "Interactive Learning",
+    title: "Virtual Classrooms",
     description:
-      "Engage with course materials in a dynamic virtual classroom environment",
+      "Create and join classrooms with unique class codes for seamless organization.",
   },
   {
     icon: Video,
-    title: "Live Sessions",
+    title: "Video Conferencing",
     description:
-      "Join real-time video classes with crystal clear audio and video",
+      "Host and join live video classes with integrated Daily.co meetings.",
   },
   {
     icon: MessageCircle,
-    title: "Instant Communication",
+    title: "Announcements",
     description:
-      "Chat and collaborate with classmates and instructors seamlessly",
+      "Share important updates and communicate with your class instantly.",
   },
   {
-    icon: Calendar,
-    title: "Smart Scheduling",
+    icon: FileText,
+    title: "Assignments",
+    description: "Create, submit, and grade assignments with file attachments.",
+  },
+  {
+    icon: Award,
+    title: "Quizzes",
     description:
-      "Organize your classes and assignments with our intuitive calendar",
+      "Create quizzes with multiple choice, true/false, short answer, and essay questions.",
+  },
+  {
+    icon: Users,
+    title: "Class Materials",
+    description: "Share and organize learning materials for your students.",
   },
 ];
 
 const benefits = [
-  "Enhanced student engagement",
-  "Real-time collaboration tools",
-  "Automated attendance tracking",
-  "Interactive whiteboard features",
-  "Integrated assessment tools",
-  "Cloud recording & playback",
+  "Easy classroom management",
+  "Real-time video conferencing",
+  "Assignment submissions and grading",
+  "Quiz creation and assessment",
+  "Material sharing",
+  "Classroom announcements",
+  "Student progress tracking",
+  "Performance analytics",
 ];
 
 const LandingPage: FC = () => {
@@ -69,14 +82,15 @@ const LandingPage: FC = () => {
               </p>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button
-                size="lg"
-                rightIcon={<ArrowRight />}
-              >
-                Get Started
-              </Button>
+              <Link to="/auth/sign-up">
+                <Button
+                  size="lg"
+                  rightIcon={<ArrowRight />}
+                >
+                  Get Started
+                </Button>
+              </Link>
             </div>
-            <div className="flex items-center gap-4 text-gray-600"></div>
           </div>
           <div className="relative">
             <img
@@ -97,10 +111,10 @@ const LandingPage: FC = () => {
             </h2>
             <p className="text-gray-600">
               Powerful features designed to make online education more effective
-              and engaging
+              and engaging.
             </p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {features.map((feature, index) => (
               <div
                 key={index}
@@ -139,14 +153,13 @@ const LandingPage: FC = () => {
               <div className="sticky-note">
                 <Users className="h-6 w-6 mb-2" />
                 <h4 className="font-semibold mb-1">Community</h4>
-                <p className="text-sm">Connect with other educators</p>
+                <p className="text-sm">Connect with other educators.</p>
               </div>
               <div className="sticky-note">
                 <Award className="h-6 w-6 mb-2" />
                 <h4 className="font-semibold mb-1">Achievement</h4>
-                <p className="text-sm">Track student progress</p>
+                <p className="text-sm">Track student progress.</p>
               </div>
-              {/* Add more sticky notes as needed */}
             </div>
           </div>
         </div>

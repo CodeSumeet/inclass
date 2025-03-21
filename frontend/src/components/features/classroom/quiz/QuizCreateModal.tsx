@@ -125,6 +125,8 @@ const QuizCreateModal: React.FC<QuizCreateModalProps> = ({
       return;
     }
 
+    if (loading) return; // Prevent duplicate submissions
+
     setLoading(true);
     setError(null);
 
