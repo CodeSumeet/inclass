@@ -51,6 +51,13 @@ const AssignmentDetailPage = () => {
   const [publishing, setPublishing] = useState(false);
   const [viewingAttachment, setViewingAttachment] =
     useState<AttachmentViewerProps | null>(null);
+  const [classStats, setClassStats] = useState({
+    averageScore: 0,
+    highestScore: 0,
+    lowestScore: 0,
+    submissionCount: 0,
+    gradedCount: 0,
+  });
 
   useEffect(() => {
     const checkTeacherStatus = async () => {
@@ -86,6 +93,31 @@ const AssignmentDetailPage = () => {
         if (isTeacher) {
           const submissionsData = await getAssignmentSubmissions(assignmentId);
           setSubmissions(submissionsData);
+
+          // Calculate class statistics
+          if (submissionsData.length > 0) {
+            const gradedSubmissions = submissionsData.filter(
+              (sub) => sub.grade && sub.grade.points !== undefined
+            );
+
+            if (gradedSubmissions.length > 0) {
+              const scores = gradedSubmissions.map((sub) => sub.grade?.points);
+              const total = scores.reduce((sum, score) => sum! + score!, 0);
+
+              setClassStats({
+                averageScore:
+                  Math.round((total! / gradedSubmissions.length) * 10) / 10,
+                highestScore: Math.max(
+                  ...scores.filter((score) => score !== undefined)
+                ),
+                lowestScore: Math.min(
+                  ...scores.filter((score) => score !== undefined)
+                ),
+                submissionCount: submissionsData.length,
+                gradedCount: gradedSubmissions.length,
+              });
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching assignment details:", error);
@@ -144,70 +176,60 @@ const AssignmentDetailPage = () => {
     }
   };
 
-  const formatDueDate = (dateString: string) => {
-    return format(new Date(dateString), "MMM dd, yyyy 'at' h:mm a");
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
 
   if (error || !assignment) {
     return (
-      <div className="bg-red-50 text-red-700 p-4 rounded-md">
-        {error || "Assignment not found"}
+      <div className="text-center py-12">
+        <div className="text-red-500 mb-4">
+          {error || "Assignment not found"}
+        </div>
+        <Button
+          onClick={() => navigate(`/classrooms/${classroomId}`)}
+          variant="outline"
+        >
+          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Classroom
+        </Button>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center mb-4">
+      <div className="flex items-center justify-between">
         <Button
-          variant="ghost"
-          size="sm"
           onClick={() => navigate(`/classrooms/${classroomId}`)}
-          className="mr-2"
+          variant="ghost"
+          className="text-gray-500"
         >
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Classroom
+          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Classroom
         </Button>
       </div>
 
-      <Card className="overflow-hidden">
+      <Card>
         <div className="p-6">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h2 className="text-2xl font-bold mb-2">{assignment.title}</h2>
-              <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                <span
-                  className={`px-2 py-0.5 rounded-full text-xs ${
-                    assignment.status === AssignmentStatus.DRAFT
-                      ? "bg-gray-100 text-gray-800"
-                      : assignment.status === AssignmentStatus.ACTIVE
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {assignment.status === AssignmentStatus.DRAFT
-                    ? "Draft"
-                    : assignment.status === AssignmentStatus.ACTIVE
-                    ? "Active"
-                    : "Closed"}
+              <h1 className="text-2xl font-bold">{assignment.title}</h1>
+              <div className="flex items-center mt-2 text-gray-500">
+                <Calendar className="h-4 w-4 mr-1" />
+                <span className="text-sm">
+                  {assignment.dueDate
+                    ? `Due ${format(
+                        new Date(assignment.dueDate),
+                        "MMM dd, yyyy h:mm a"
+                      )}`
+                    : "No due date"}
                 </span>
-                {assignment.dueDate && (
-                  <span className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-1" />
-                    Due: {formatDueDate(assignment.dueDate)}
-                  </span>
-                )}
-                <span className="flex items-center">
-                  <Award className="h-4 w-4 mr-1" />
-                  {assignment.points} points
-                </span>
+                <span className="mx-2">•</span>
+                <Award className="h-4 w-4 mr-1" />
+                <span className="text-sm">{assignment.points} points</span>
               </div>
             </div>
 
@@ -221,7 +243,7 @@ const AssignmentDetailPage = () => {
                     disabled={publishing}
                   >
                     {publishing ? (
-                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                      <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
                     ) : null}
                     Publish
                   </Button>
@@ -267,6 +289,33 @@ const AssignmentDetailPage = () => {
               </div>
             )}
           </div>
+
+          {isTeacher && classStats.submissionCount > 0 && (
+            <div className="mt-6 mb-6 bg-blue-50 p-4 rounded-md">
+              <h3 className="text-lg font-medium mb-3">Class Statistics</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white p-3 rounded-md shadow-sm">
+                  <div className="text-sm text-gray-500">Average Score</div>
+                  <div className="text-xl font-semibold">
+                    {classStats.averageScore} / {assignment.points}
+                  </div>
+                </div>
+                <div className="bg-white p-3 rounded-md shadow-sm">
+                  <div className="text-sm text-gray-500">Submissions</div>
+                  <div className="text-xl font-semibold">
+                    {classStats.submissionCount} submitted •{" "}
+                    {classStats.gradedCount} graded
+                  </div>
+                </div>
+                <div className="bg-white p-3 rounded-md shadow-sm">
+                  <div className="text-sm text-gray-500">Score Range</div>
+                  <div className="text-xl font-semibold">
+                    {classStats.lowestScore} - {classStats.highestScore}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {assignment.attachments && assignment.attachments.length > 0 && (
             <div className="mt-6">

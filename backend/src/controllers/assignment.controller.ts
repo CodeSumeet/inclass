@@ -45,6 +45,12 @@ export const createAssignment = asyncHandler(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // Ensure attachments have fileSize property
+    const processedAttachments = attachments?.map((attachment: any) => ({
+      ...attachment,
+      fileSize: attachment.fileSize || 0, // Provide a default if missing
+    }));
+
     const assignment = await AssignmentService.createAssignment(userId, {
       title,
       description: description || "",
@@ -54,7 +60,7 @@ export const createAssignment = asyncHandler(
       topicId,
       classroomId,
       status,
-      attachments,
+      attachments: processedAttachments,
     });
 
     res.status(201).json(assignment);

@@ -62,6 +62,7 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
     try {
       let attachments: any = [];
 
+      // Inside the handleSubmit function where attachments are created
       if (file) {
         const uploadResult = await uploadToCloudinary({
           file,
@@ -75,6 +76,7 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
             url: uploadResult.secure_url,
             fileName: file.name,
             fileType: file.type,
+            fileSize: file.size,
           },
         ];
       }

@@ -20,7 +20,7 @@ const ClassroomHeader: React.FC<ClassroomHeaderProps> = ({ classroom }) => {
       <div className="absolute inset-0 bg-gradient-to-t from-gray-800 via-gray-800/40 to-transparent"></div>
       <div className="absolute top-4 left-4 flex items-center gap-2">
         <Button
-          className="bg-white/90 hover:bg-white text-gray-800"
+          className="bg-white/90 hover:bg-white text-gray-800 h-10 "
           onClick={() => window.history.back()}
         >
           <ChevronLeft className="mr-2 h-4 w-4" /> Back
@@ -28,7 +28,7 @@ const ClassroomHeader: React.FC<ClassroomHeaderProps> = ({ classroom }) => {
 
         <Link
           to={`/classroom/${classroomId}/analytics`}
-          className="flex items-center gap-2 px-4 py-2 bg-white/90 hover:bg-white text-gray-800 rounded-md font-medium text-sm"
+          className="flex items-center gap-2 h-10 px-4 bg-white/90 hover:bg-white text-gray-800 rounded-lg font-medium text-sm"
         >
           <BarChart className="h-4 w-4" />
           Analytics

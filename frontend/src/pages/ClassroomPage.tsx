@@ -267,15 +267,6 @@ const ClassroomPage = () => {
               <Users size={18} />
               <span>Participants</span>
             </TabsTrigger>
-            {isTeacher && (
-              <TabsTrigger
-                value="scores"
-                className="flex items-center gap-2 px-6 py-4 text-sm font-medium border-b-2 data-[state=active]:border-primary data-[state=active]:bg-primary/5 data-[state=inactive]:border-transparent data-[state=active]:text-primary transition-colors"
-              >
-                <BarChart size={18} />
-                <span>Scores</span>
-              </TabsTrigger>
-            )}
           </TabsList>
 
           <div className="bg-white rounded-lg shadow-sm p-6">
@@ -404,10 +395,6 @@ const ClassroomPage = () => {
                 classCode={classroom.code}
                 isTeacher={isTeacher}
               />
-            </TabsContent>
-
-            <TabsContent value="scores">
-              {isTeacher && <ScoresOverview />}
             </TabsContent>
           </div>
         </Tabs>

@@ -1,10 +1,11 @@
 import { FC, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, BookOpen, Settings, GraduationCap, School } from "lucide-react";
+import { BookOpen, Settings } from "lucide-react";
 import Logo from "@/assets/inclasslogo.svg";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { getUserClassrooms, getUserEnrollments } from "@/services/api/user";
+import { getAvatarUrl } from "@/utils/getAvatarUrl";
 
 interface SidebarProps {
   className?: string;
@@ -20,13 +21,9 @@ interface Classroom {
 const Sidebar: FC<SidebarProps> = ({ className }) => {
   const { user } = useAuthStore();
   const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+  const location = useLocation();
 
   const mainNavItems = [
-    {
-      to: "/dashboard",
-      icon: <Home className="h-5 w-5" />,
-      label: "Dashboard",
-    },
     {
       to: "/classes",
       icon: <BookOpen className="h-5 w-5" />,
@@ -68,6 +65,9 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
     fetchClassrooms();
   }, [user?.userId]);
 
+  const teachingClassrooms = classrooms.filter((c) => c.isTeacher);
+  const enrolledClassrooms = classrooms.filter((c) => !c.isTeacher);
+
   return (
     <aside
       className={cn(
@@ -75,10 +75,9 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
         className
       )}
     >
-      {/* Logo */}
       <div className="h-16 flex items-center gap-2 px-6 border-b border-gray-200">
         <Link
-          to="/dashboard"
+          to="/classes"
           className="flex items-center gap-2"
         >
           <img
@@ -93,9 +92,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
         </Link>
       </div>
 
-      {/* Main Navigation */}
       <div className="flex-1 flex flex-col gap-1 p-4 overflow-y-auto">
-        {/* Primary Navigation */}
         <nav className="space-y-1">
           {mainNavItems.map((item) => (
             <NavLink
@@ -108,41 +105,106 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
           ))}
         </nav>
 
-        {/* Classrooms List */}
-        {classrooms.length > 0 && (
+        {teachingClassrooms.length > 0 && (
           <div className="mt-6">
             <h3 className="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
-              My Classrooms
+              Teaching
             </h3>
             <div className="space-y-1">
-              {classrooms.map((classroom) => (
-                <NavLink
-                  key={classroom.id}
-                  to={`/classroom/${classroom.id}`}
-                  icon={
-                    classroom.isTeacher ? (
-                      <School className="h-4 w-4" />
-                    ) : (
-                      <GraduationCap className="h-4 w-4" />
-                    )
-                  }
-                  className="pl-3"
-                >
-                  <div className="flex flex-col">
-                    <span className="font-medium">{classroom.name}</span>
-                    {classroom.section && (
-                      <span className="text-xs text-gray-500">
-                        {classroom.section}
-                      </span>
+              {teachingClassrooms.map((classroom) => {
+                const isClassroomActive = location.pathname.includes(
+                  `/classroom/${classroom.id}`
+                );
+
+                const avatarUrl = getAvatarUrl({
+                  name: classroom.name,
+                  size: 32,
+                  rounded: true,
+                  bold: true,
+                });
+
+                return (
+                  <Link
+                    key={classroom.id}
+                    to={`/classroom/${classroom.id}`}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 text-sm rounded-lg",
+                      "transition-colors duration-200",
+                      isClassroomActive
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
                     )}
-                  </div>
-                </NavLink>
-              ))}
+                  >
+                    <img
+                      src={avatarUrl}
+                      alt={classroom.name}
+                      className="w-9 h-9 rounded-full mt-0.5"
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium">{classroom.name}</span>
+                      {classroom.section && (
+                        <span className="text-xs text-gray-500">
+                          {classroom.section}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
 
-        {/* Settings at the bottom */}
+        {enrolledClassrooms.length > 0 && (
+          <div className="mt-6">
+            <h3 className="px-3 text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">
+              Enrolled
+            </h3>
+            <div className="space-y-1">
+              {enrolledClassrooms.map((classroom) => {
+                const isClassroomActive = location.pathname.includes(
+                  `/classroom/${classroom.id}`
+                );
+
+                const avatarUrl = getAvatarUrl({
+                  name: classroom.name,
+                  size: 32,
+                  rounded: true,
+                  bold: true,
+                });
+
+                return (
+                  <Link
+                    key={classroom.id}
+                    to={`/classroom/${classroom.id}`}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 text-sm rounded-lg",
+                      "transition-colors duration-200",
+                      isClassroomActive
+                        ? "bg-primary/10 text-primary font-medium"
+                        : "text-gray-700 hover:bg-gray-100"
+                    )}
+                  >
+                    <img
+                      src={avatarUrl}
+                      alt={classroom.name}
+                      className="w-9 h-9 rounded-full mt-0.5"
+                    />
+                    <div className="flex flex-col">
+                      <span className="font-medium">{classroom.name}</span>
+                      {classroom.section && (
+                        <span className="text-xs text-gray-500">
+                          {classroom.section}
+                        </span>
+                      )}
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        {/* 
         <div className="mt-auto pt-4 border-t border-gray-200">
           <NavLink
             to="/settings"
@@ -150,7 +212,7 @@ const Sidebar: FC<SidebarProps> = ({ className }) => {
           >
             Settings
           </NavLink>
-        </div>
+        </div> */}
       </div>
     </aside>
   );
@@ -180,7 +242,7 @@ const NavLink: FC<NavLinkProps> = ({ to, icon, children, className }) => {
         className
       )}
     >
-      {icon}
+      <figure>{icon}</figure>
       <span className="flex-1">{children}</span>
     </Link>
   );
