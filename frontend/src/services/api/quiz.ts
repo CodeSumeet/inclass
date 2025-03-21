@@ -10,7 +10,6 @@ import {
   SubmitQuizDto,
 } from "@/types/quiz.types";
 
-// Quiz APIs
 export const getClassroomQuizzes = async (
   classroomId: string
 ): Promise<Quiz[]> => {
@@ -45,7 +44,6 @@ export const deleteQuiz = async (quizId: string): Promise<void> => {
   await API.delete(`/quizzes/${quizId}`);
 };
 
-// Question APIs
 export const createQuestion = async (
   data: CreateQuestionDto
 ): Promise<Question> => {
@@ -65,7 +63,6 @@ export const deleteQuestion = async (questionId: string): Promise<void> => {
   await API.delete(`/quizzes/questions/${questionId}`);
 };
 
-// Option APIs
 export const createOption = async (data: CreateOptionDto): Promise<Option> => {
   const response = await API.post("/quizzes/options", data);
   return response.data;
@@ -83,7 +80,6 @@ export const deleteOption = async (optionId: string): Promise<void> => {
   await API.delete(`/quizzes/options/${optionId}`);
 };
 
-// Quiz Attempt APIs
 export const startQuizAttempt = async (
   quizId: string
 ): Promise<QuizAttempt> => {

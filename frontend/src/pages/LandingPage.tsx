@@ -66,7 +66,6 @@ const LandingPage: FC = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      {/* Hero Section */}
       <section className="container mx-auto px-6 pt-20 pb-16 lg:pt-32 lg:pb-24">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
@@ -102,7 +101,6 @@ const LandingPage: FC = () => {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="bg-white py-20">
         <div className="container mx-auto px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
@@ -131,7 +129,6 @@ const LandingPage: FC = () => {
         </div>
       </section>
 
-      {/* Benefits Section */}
       <section className="py-20">
         <div className="container mx-auto px-6">
           <div className="grid lg:grid-cols-2 gap-12 items-center">

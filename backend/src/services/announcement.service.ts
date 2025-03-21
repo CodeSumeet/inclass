@@ -6,7 +6,6 @@ export const createAnnouncement = async (
   createdById: string,
   content: string
 ) => {
-  // Check if classroom exists
   const classroom = await prisma.classroom.findUnique({
     where: { id: classroomId, isDeleted: false },
   });
@@ -15,7 +14,6 @@ export const createAnnouncement = async (
     throw new Error("Classroom not found");
   }
 
-  // Get user details for email
   const user = await prisma.user.findUnique({
     where: { userId: createdById },
     select: {
@@ -28,7 +26,6 @@ export const createAnnouncement = async (
     throw new Error("User not found");
   }
 
-  // Create the announcement
   const announcement = await prisma.announcement.create({
     data: {
       content,
@@ -47,13 +44,11 @@ export const createAnnouncement = async (
     },
   });
 
-  // Send email notifications to students
   sendAnnouncementEmail(classroomId, content, {
     firstName: user.firstName,
     lastName: user.lastName,
   }).catch((err) => console.error("Failed to send announcement emails:", err));
 
-  // Format the response to match frontend expectations
   return {
     id: announcement.id,
     content: announcement.content,
@@ -94,7 +89,6 @@ export const getClassroomAnnouncements = async (classroomId: string) => {
     },
   });
 
-  // Format the response to match frontend expectations
   return announcements.map((announcement) => ({
     id: announcement.id,
     content: announcement.content,
@@ -121,7 +115,6 @@ export const deleteAnnouncement = async (
   announcementId: string,
   userId: string
 ) => {
-  // Find the announcement
   const announcement = await prisma.announcement.findUnique({
     where: { id: announcementId },
     include: {
@@ -133,7 +126,6 @@ export const deleteAnnouncement = async (
     throw new Error("Announcement not found");
   }
 
-  // Check if user is the creator of the announcement or the classroom owner
   if (
     announcement.createdById !== userId &&
     announcement.classroom.ownerId !== userId
@@ -141,7 +133,6 @@ export const deleteAnnouncement = async (
     throw new Error("Unauthorized to delete this announcement");
   }
 
-  // Delete the announcement
   return prisma.announcement.delete({
     where: { id: announcementId },
   });

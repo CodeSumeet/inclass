@@ -14,7 +14,7 @@ export default {
           200: "#bcd9ff",
           300: "#8ec2ff",
           400: "#589fff",
-          500: "#3b82f6", // Main brand color - Educational Blue
+          500: "#3b82f6",
           600: "#2570eb",
           700: "#1d5fc2",
           800: "#1a4c98",
@@ -28,7 +28,7 @@ export default {
           200: "#edc9ff",
           300: "#e19fff",
           400: "#cb65ff",
-          500: "#a855f7", // Playful Purple
+          500: "#a855f7",
           600: "#9333ea",
           700: "#7c22ce",
           800: "#6821a8",
@@ -42,7 +42,7 @@ export default {
           200: "#a3e9d2",
           300: "#6bd4b4",
           400: "#34c496",
-          500: "#10b981", // Success Green
+          500: "#10b981",
           600: "#059669",
           700: "#047857",
           800: "#065f46",
@@ -53,7 +53,7 @@ export default {
           foreground: "#ffffff",
         },
         warning: {
-          DEFAULT: "#f59e0b", // Warmer orange
+          DEFAULT: "#f59e0b",
           foreground: "#ffffff",
         },
         destructive: {
@@ -62,7 +62,6 @@ export default {
         },
         border: "hsl(var(--border))",
         ring: "hsl(var(--ring))",
-        // New educational-themed colors
         chalk: {
           DEFAULT: "#ffffff",
           dark: "#f8fafc",

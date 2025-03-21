@@ -9,20 +9,18 @@ import prisma from "../config/db";
 export default (httpServer: HttpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: "*", // Accept requests from any origin
+      origin: "*",
       methods: ["GET", "POST"],
       credentials: true,
     },
   });
 
-  // Socket.io middleware for authentication
   io.use(async (socket, next) => {
     const userId = socket.handshake.auth.userId;
     if (!userId) {
       return next(new Error("Authentication error"));
     }
 
-    // Store the user ID in the socket
     socket.data.userId = userId;
     next();
   });
@@ -30,34 +28,27 @@ export default (httpServer: HttpServer) => {
   io.on("connection", (socket) => {
     console.log("User connected:", socket.data.userId);
 
-    // Handle joining a meeting room
     socket.on("join-meeting", (meetingId) => {
       socket.join(`meeting:${meetingId}`);
 
-      // Notify others that a user has joined
       socket.to(`meeting:${meetingId}`).emit("user-joined", {
         userId: socket.data.userId,
         timestamp: new Date(),
       });
     });
 
-    // Handle leaving a meeting room
     socket.on("leave-meeting", async (meetingId) => {
       socket.leave(`meeting:${meetingId}`);
 
-      // Record the participant leaving
       await recordParticipantLeave(meetingId, socket.data.userId);
 
-      // Notify others that a user has left
       socket.to(`meeting:${meetingId}`).emit("user-left", {
         userId: socket.data.userId,
         timestamp: new Date(),
       });
 
-      // Check if there are any participants left
       const hasParticipants = await hasActiveParticipants(meetingId);
       if (!hasParticipants) {
-        // Auto-end the meeting if everyone has left
         await prisma.videoConference.update({
           where: { id: meetingId },
           data: {
@@ -74,11 +65,9 @@ export default (httpServer: HttpServer) => {
       }
     });
 
-    // Handle disconnection
     socket.on("disconnect", async () => {
       console.log("User disconnected:", socket.data.userId);
 
-      // Find active meetings for this user
       const activeParticipations =
         await prisma.videoConferenceParticipant.findMany({
           where: {
@@ -87,25 +76,21 @@ export default (httpServer: HttpServer) => {
           },
         });
 
-      // Record leave time for all active participations
       for (const participation of activeParticipations) {
         await recordParticipantLeave(
           participation.conferenceId,
           socket.data.userId
         );
 
-        // Notify others that the user has left
         socket.to(`meeting:${participation.conferenceId}`).emit("user-left", {
           userId: socket.data.userId,
           timestamp: new Date(),
         });
 
-        // Check if there are any participants left
         const hasParticipants = await hasActiveParticipants(
           participation.conferenceId
         );
         if (!hasParticipants) {
-          // Auto-end the meeting if everyone has left
           await prisma.videoConference.update({
             where: { id: participation.conferenceId },
             data: {

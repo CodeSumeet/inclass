@@ -5,7 +5,6 @@ export const getUserPerformance = async (
   userId: string
 ) => {
   try {
-    // Check if user is enrolled in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -17,7 +16,6 @@ export const getUserPerformance = async (
       throw new Error("User is not enrolled in this classroom");
     }
 
-    // Get existing performance metrics or create new ones
     let performance = await prisma.performanceMetric.findFirst({
       where: {
         userId,
@@ -26,8 +24,6 @@ export const getUserPerformance = async (
     });
 
     if (!performance) {
-      // Calculate performance metrics
-      // Assignment completion rate
       const assignments = await prisma.assignment.count({
         where: { classroomId },
       });
@@ -47,7 +43,6 @@ export const getUserPerformance = async (
       const assignmentCompletionRate =
         assignments > 0 ? (completedAssignments / assignments) * 100 : 0;
 
-      // Quiz average score
       const quizAttempts = await prisma.quizAttempt.findMany({
         where: {
           userId,
@@ -71,10 +66,8 @@ export const getUserPerformance = async (
             ) / quizAttempts.length
           : 0;
 
-      // Overall grade (weighted average of assignments and quizzes)
       const overallGrade = assignmentCompletionRate * 0.7 + quizAvgScore * 0.3;
 
-      // Create performance record
       performance = await prisma.performanceMetric.create({
         data: {
           userId,
@@ -82,7 +75,7 @@ export const getUserPerformance = async (
           assignmentCompletionRate,
           quizAvgScore,
           overallGrade,
-          attendanceRate: 0, // Set to 0 since we're not tracking attendance
+          attendanceRate: 0,
         },
       });
     }
@@ -96,7 +89,6 @@ export const getUserPerformance = async (
 
 export const getTeacherDashboardStats = async (userId: string) => {
   try {
-    // Get classrooms where user is a teacher
     const classrooms = await prisma.classroom.findMany({
       where: {
         OR: [
@@ -115,7 +107,6 @@ export const getTeacherDashboardStats = async (userId: string) => {
 
     const classroomIds = classrooms.map((classroom) => classroom.id);
 
-    // Get total students across all classrooms
     const totalStudents = await prisma.enrollment.count({
       where: {
         classroomId: {
@@ -125,7 +116,6 @@ export const getTeacherDashboardStats = async (userId: string) => {
       },
     });
 
-    // Get recent activities - removing the classroomId filter since it's not in the schema
     const recentActivities = await prisma.activityLog.findMany({
       where: {
         userId,
@@ -144,7 +134,6 @@ export const getTeacherDashboardStats = async (userId: string) => {
       take: 10,
     });
 
-    // Get classroom analytics
     const classroomAnalytics = await Promise.all(
       classroomIds.map(async (classroomId) => {
         const students = await prisma.enrollment.count({
@@ -174,7 +163,6 @@ export const getTeacherDashboardStats = async (userId: string) => {
       })
     );
 
-    // Get assignment submission stats
     const assignmentStats = await Promise.all(
       classroomIds.map(async (classroomId) => {
         const assignments = await prisma.assignment.count({
@@ -228,7 +216,6 @@ export const getStudentDashboardStats = async (userId: string) => {
   try {
     const now = new Date();
 
-    // Get classrooms where user is enrolled as a student
     const enrollments = await prisma.enrollment.findMany({
       where: {
         userId,
@@ -246,7 +233,6 @@ export const getStudentDashboardStats = async (userId: string) => {
 
     const classroomIds = enrollments.map((e) => e.classroomId);
 
-    // Get performance metrics for each classroom
     let performanceMetrics = await prisma.performanceMetric.findMany({
       where: {
         userId,
@@ -261,12 +247,10 @@ export const getStudentDashboardStats = async (userId: string) => {
           },
         },
       },
-    }); // <-- This closing bracket was missing
+    });
 
-    // If no performance metrics exist, create them
     if (performanceMetrics.length === 0) {
       for (const enrollment of enrollments) {
-        // Calculate basic metrics for each classroom
         const assignments = await prisma.assignment.count({
           where: { classroomId: enrollment.classroomId },
         });
@@ -286,7 +270,6 @@ export const getStudentDashboardStats = async (userId: string) => {
         const assignmentCompletionRate =
           assignments > 0 ? (completedAssignments / assignments) * 100 : 0;
 
-        // Get quiz scores
         const quizAttempts = await prisma.quizAttempt.findMany({
           where: {
             userId,
@@ -310,24 +293,21 @@ export const getStudentDashboardStats = async (userId: string) => {
               ) / quizAttempts.length
             : 0;
 
-        // Overall grade (weighted average of assignments and quizzes)
         const overallGrade =
           assignmentCompletionRate * 0.7 + quizAvgScore * 0.3;
 
-        // Create performance record
         await prisma.performanceMetric.create({
           data: {
             userId,
             classroomId: enrollment.classroomId,
             assignmentCompletionRate,
             quizAvgScore,
-            attendanceRate: 0, // Not tracking attendance
+            attendanceRate: 0,
             overallGrade,
           },
         });
       }
 
-      // Fetch the newly created metrics
       const newPerformanceMetrics = await prisma.performanceMetric.findMany({
         where: {
           userId,
@@ -347,7 +327,6 @@ export const getStudentDashboardStats = async (userId: string) => {
       performanceMetrics.push(...newPerformanceMetrics);
     }
 
-    // Get recent activities
     const recentActivities = await prisma.activityLog.findMany({
       where: {
         userId,
@@ -358,7 +337,6 @@ export const getStudentDashboardStats = async (userId: string) => {
       take: 10,
     });
 
-    // Get upcoming assignments
     const upcomingAssignments = await prisma.assignment.findMany({
       where: {
         classroomId: {

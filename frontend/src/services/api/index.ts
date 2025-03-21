@@ -8,7 +8,6 @@ const API = axios.create({
   },
 });
 
-// Add a request interceptor to include the Firebase token
 API.interceptors.request.use(
   async (config) => {
     const user = auth.currentUser;

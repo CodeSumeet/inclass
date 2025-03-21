@@ -44,7 +44,6 @@ const QuizDetailPage: React.FC = () => {
       if (!classroomId || !user) return;
 
       try {
-        // Fetch the user's role in this specific classroom
         const response = await API.get(`/classrooms/${classroomId}/role`);
         setIsTeacher(response.data.role === "TEACHER");
       } catch (error) {

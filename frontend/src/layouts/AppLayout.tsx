@@ -17,15 +17,12 @@ const AppLayout: FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sidebar */}
       <Sidebar className="fixed inset-y-0 left-0 z-30 hidden lg:block w-64" />
 
       {/* Main Content */}
       <div className="lg:pl-64 min-h-screen">
-        {/* Header */}
         <Header />
 
-        {/* Main Content Area */}
         <main className="w-full">
           <div className="p-6">
             <Outlet />

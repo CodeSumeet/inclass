@@ -4,7 +4,6 @@ import * as AssignmentController from "../controllers/assignment.controller";
 
 const router = Router();
 
-// Assignment routes
 router.get("/:assignmentId", authenticate, AssignmentController.getAssignment);
 router.post("/", authenticate, AssignmentController.createAssignment);
 router.put(
@@ -23,7 +22,6 @@ router.post(
   AssignmentController.addAssignmentAttachment
 );
 
-// Submission routes
 router.get(
   "/:assignmentId/submissions",
   authenticate,

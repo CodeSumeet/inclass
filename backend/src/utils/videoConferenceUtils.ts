@@ -1,8 +1,5 @@
 import prisma from "../config/db";
 
-/**
- * Records a participant leaving a meeting
- */
 export const recordParticipantLeave = async (
   conferenceId: string,
   userId: string
@@ -23,9 +20,6 @@ export const recordParticipantLeave = async (
   }
 };
 
-/**
- * Checks if a meeting has any active participants
- */
 export const hasActiveParticipants = async (
   conferenceId: string
 ): Promise<boolean> => {

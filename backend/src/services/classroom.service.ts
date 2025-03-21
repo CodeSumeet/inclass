@@ -10,7 +10,7 @@ export const createClassroom = async (
   subject?: string,
   roomNo?: string,
   description?: string,
-  coverImage?: string // Add coverImage parameter
+  coverImage?: string
 ) => {
   let code: string = "";
   let isUnique = false;
@@ -30,7 +30,7 @@ export const createClassroom = async (
       subject,
       roomNo,
       description,
-      coverImage, // Save the coverImage URL in the database
+      coverImage,
       code,
       ownerId: userId,
     },
@@ -55,23 +55,20 @@ export const joinClassroom = async (userId: string, code: string) => {
 };
 
 export const getUserClassrooms = async (userId: string) => {
-  // Fetch classrooms owned by the user
   const ownedClassrooms = await prisma.classroom.findMany({
     where: { ownerId: userId },
     include: {
-      enrollments: true, // Include enrollments if needed
+      enrollments: true,
     },
   });
 
-  // Fetch classrooms the user is enrolled in
   const enrolledClassrooms = await prisma.enrollment.findMany({
     where: { userId: userId },
     include: {
-      classroom: true, // Include classroom details
+      classroom: true,
     },
   });
 
-  // Combine both arrays
   const allClassrooms = [
     ...ownedClassrooms,
     ...enrolledClassrooms.map((enrollment) => enrollment.classroom),

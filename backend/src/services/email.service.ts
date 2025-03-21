@@ -246,7 +246,6 @@ export const sendMeetingStartedEmail = async (
   createdBy: { firstName: string; lastName: string }
 ) => {
   try {
-    // Get classroom details
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
     });
@@ -255,10 +254,8 @@ export const sendMeetingStartedEmail = async (
       throw new Error("Classroom not found");
     }
 
-    // Get all student emails
     const students = await getClassroomStudentEmails(classroomId);
 
-    // Send email to each student
     for (const student of students) {
       await transporter.sendMail({
         from: `"Inclass" <${process.env.EMAIL_USER}>`,

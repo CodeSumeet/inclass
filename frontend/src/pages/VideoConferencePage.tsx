@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
 import VideoConference from "@/components/features/videoConference/VideoConference";
 import { Button } from "@/components/common/Button/Button";
-import { toast } from "sonner";
 
 const VideoConferencePage: React.FC = () => {
   const { meetingId } = useParams<{ meetingId: string }>();

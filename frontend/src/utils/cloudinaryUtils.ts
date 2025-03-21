@@ -15,15 +15,14 @@ interface CloudinaryResponse {
   resource_type: string;
 }
 
-// Allowed file types mapping
 const ALLOWED_FILE_TYPES = {
   image: ["image/jpeg", "image/jpg", "image/png"],
   document: [
     "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
-    "application/msword", // doc
-    "application/vnd.ms-powerpoint", // ppt
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // pptx
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   ],
   video: ["video/mp4"],
 };
@@ -35,7 +34,6 @@ export const uploadToCloudinary = async ({
   classroomId,
   assignmentId,
 }: UploadOptions): Promise<CloudinaryResponse> => {
-  // Validate file type
   const isImage = ALLOWED_FILE_TYPES.image.includes(file.type);
   const isDocument = ALLOWED_FILE_TYPES.document.includes(file.type);
   const isVideo = ALLOWED_FILE_TYPES.video.includes(file.type);
@@ -46,7 +44,6 @@ export const uploadToCloudinary = async ({
     );
   }
 
-  // Validate file size
   if (fileType === "profile" && file.size > 2 * 1024 * 1024) {
     throw new Error("Profile pictures must be less than 2MB");
   }
@@ -57,7 +54,6 @@ export const uploadToCloudinary = async ({
     throw new Error("Assignment submissions must be less than 10MB");
   }
 
-  // Determine upload preset and folder
   let uploadPreset;
   let folder = import.meta.env.VITE_CLOUDINARY_BASE_FOLDER || "inclass";
 
@@ -78,23 +74,20 @@ export const uploadToCloudinary = async ({
       throw new Error("Invalid file type");
   }
 
-  // Determine resource type based on file type
   let resourceType: string;
   if (isImage) {
     resourceType = "image";
   } else if (isVideo) {
     resourceType = "video";
   } else {
-    resourceType = "raw"; // For documents (PDF, DOCX, etc.)
+    resourceType = "raw";
   }
 
-  // Create form data
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", uploadPreset);
   formData.append("folder", folder);
 
-  // Add flags for documents to enable download
   if (isDocument) {
     formData.append("flags", "attachment");
   }
@@ -128,9 +121,7 @@ export const uploadToCloudinary = async ({
 
     const result = await response.json();
 
-    // Construct the final URL with appropriate flags for documents
     if (isDocument) {
-      // For PDFs and documents, add fl_attachment flag
       result.secure_url = result.secure_url.replace(
         "/upload/",
         "/upload/fl_attachment/"
@@ -147,11 +138,9 @@ export const uploadToCloudinary = async ({
 export const getOptimizedUrl = (url: string, fileType?: string): string => {
   if (!url.includes("cloudinary.com")) return url;
 
-  // Remove any existing fl_attachment flags
   return url.replace("/fl_attachment", "");
 };
 
-// For downloading documents (with fl_attachment)
 export const getDownloadUrl = (url: string, fileType?: string): string => {
   if (!url.includes("cloudinary.com")) return url;
 
@@ -163,7 +152,6 @@ export const getDownloadUrl = (url: string, fileType?: string): string => {
     fileType?.includes("powerpoint");
 
   if (isPdf || isDocument) {
-    // Add fl_attachment flag if not present
     if (!url.includes("fl_attachment")) {
       return url.replace("/upload/", "/upload/fl_attachment/");
     }

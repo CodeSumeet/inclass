@@ -32,9 +32,8 @@ const SignInPage = () => {
     e.preventDefault();
     try {
       await loginWithEmail(formData.email, formData.password);
-      navigate("/dashboard");
+      navigate("/classes");
     } catch (err) {
-      // Error is already handled in the store
       console.error("Login failed:", err);
     }
   };
@@ -42,19 +41,16 @@ const SignInPage = () => {
   const handleGoogleSignIn = async () => {
     try {
       await loginWithGoogle();
-      navigate("/dashboard");
+      navigate("/classes");
     } catch (err) {
-      // Error is already handled in the store
       console.error("Google sign-in failed:", err);
     }
   };
 
   return (
     <div className="min-h-screen w-full bg-background grid lg:grid-cols-2">
-      {/* Left: Sign In Form */}
       <div className="flex flex-col items-center justify-center px-6 lg:px-20 py-12">
         <div className="w-full max-w-[400px] mx-auto space-y-6">
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center gap-2 mb-8"
@@ -140,7 +136,6 @@ const SignInPage = () => {
             </Button>
           </form>
 
-          {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
@@ -152,7 +147,6 @@ const SignInPage = () => {
             </div>
           </div>
 
-          {/* Google Sign In */}
           <Button
             type="button"
             variant="outline"
@@ -169,7 +163,6 @@ const SignInPage = () => {
             Sign in with Google
           </Button>
 
-          {/* Sign Up Link */}
           <p className="text-center text-sm text-gray-500">
             Don't have an account?{" "}
             <Link
@@ -182,7 +175,6 @@ const SignInPage = () => {
         </div>
       </div>
 
-      {/* Right: Illustration */}
       <div className="hidden lg:flex flex-col items-center justify-center bg-white border-l border-gray-100">
         <div className="max-w-[420px] text-center">
           <img

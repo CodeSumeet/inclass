@@ -19,7 +19,6 @@ export const useAuth = () => {
       }
     );
 
-    // Cleanup subscription
     return () => unsubscribe();
   }, []);
 

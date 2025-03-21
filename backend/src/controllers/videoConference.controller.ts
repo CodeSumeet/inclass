@@ -12,7 +12,6 @@ export const createMeeting = asyncHandler(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Verify the classroom exists and user has access
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
     });
@@ -21,7 +20,6 @@ export const createMeeting = asyncHandler(
       return res.status(404).json({ message: "Classroom not found" });
     }
 
-    // Check if user is the owner or enrolled in the classroom
     const isOwner = classroom.ownerId === userId;
 
     if (!isOwner) {
@@ -39,13 +37,11 @@ export const createMeeting = asyncHandler(
       }
     }
 
-    // Create a Daily.co room
     const room = await VideoConferenceService.createRoom(
       classroomId,
       classroom.name
     );
 
-    // Store meeting information in the database
     const meeting = await prisma.videoConference.create({
       data: {
         classroomId,
@@ -60,7 +56,6 @@ export const createMeeting = asyncHandler(
       },
     });
 
-    // Create a token for the current user
     const user = await prisma.user.findUnique({
       where: { userId },
       select: { firstName: true, lastName: true },
@@ -90,7 +85,6 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // Verify the meeting exists and is active
   const meeting = await prisma.videoConference.findUnique({
     where: {
       id: meetingId,
@@ -105,7 +99,6 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
     return res.status(404).json({ message: "Active meeting not found" });
   }
 
-  // Check if user is enrolled in the classroom
   const isOwner = meeting.classroom.ownerId === userId;
 
   if (!isOwner) {
@@ -123,7 +116,6 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
     }
   }
 
-  // Get user details for the token
   const user = await prisma.user.findUnique({
     where: { userId },
   });
@@ -132,7 +124,6 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
     return res.status(404).json({ message: "User not found" });
   }
 
-  // Create a token for the user
   const tokenData = await VideoConferenceService.createMeetingToken(
     meeting.roomName,
     user.firstName || user.email,
@@ -140,7 +131,6 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
     isOwner
   );
 
-  // Check if the participant has already joined this meeting
   const existingParticipation =
     await prisma.videoConferenceParticipant.findUnique({
       where: {
@@ -151,9 +141,7 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
       },
     });
 
-  // Only create a new participant record if they haven't joined before
   if (!existingParticipation) {
-    // Log the participant joining
     await prisma.videoConferenceParticipant.create({
       data: {
         conferenceId: meetingId,
@@ -162,7 +150,6 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
       },
     });
   } else if (existingParticipation.leaveTime) {
-    // If they joined before but left, update their record with a new join time
     await prisma.videoConferenceParticipant.update({
       where: {
         conferenceId_userId: {
@@ -176,7 +163,6 @@ export const joinMeeting = asyncHandler(async (req: Request, res: Response) => {
       },
     });
   }
-  // If they're already in the meeting (no leaveTime), do nothing
 
   res.status(200).json({
     meeting,
@@ -192,7 +178,6 @@ export const endMeeting = asyncHandler(async (req: Request, res: Response) => {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  // Find the meeting
   const meeting = await prisma.videoConference.findUnique({
     where: { id: meetingId },
     include: {
@@ -204,14 +189,12 @@ export const endMeeting = asyncHandler(async (req: Request, res: Response) => {
     return res.status(404).json({ message: "Meeting not found" });
   }
 
-  // Only the creator or classroom owner can end the meeting
   if (meeting.createdById !== userId && meeting.classroom.ownerId !== userId) {
     return res
       .status(403)
       .json({ message: "Not authorized to end this meeting" });
   }
 
-  // Update meeting status
   const updatedMeeting = await prisma.videoConference.update({
     where: { id: meetingId },
     data: {
@@ -232,7 +215,6 @@ export const getClassroomMeetings = asyncHandler(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Verify the classroom exists and user has access
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
     });
@@ -241,7 +223,6 @@ export const getClassroomMeetings = asyncHandler(
       return res.status(404).json({ message: "Classroom not found" });
     }
 
-    // Check if user is the owner or enrolled in the classroom
     const isOwner = classroom.ownerId === userId;
 
     if (!isOwner) {
@@ -259,7 +240,6 @@ export const getClassroomMeetings = asyncHandler(
       }
     }
 
-    // Get meetings for this classroom
     const meetings = await prisma.videoConference.findMany({
       where: {
         classroomId,

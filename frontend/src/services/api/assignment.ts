@@ -7,7 +7,6 @@ import {
   GradeSubmissionDto,
 } from "@/types/assignment.types";
 
-// Assignment APIs
 export const getClassroomAssignments = async (
   classroomId: string
 ): Promise<Assignment[]> => {
@@ -53,7 +52,6 @@ export const addAssignmentAttachment = async (
   await API.post(`/assignments/${assignmentId}/attachments`, attachment);
 };
 
-// Submission APIs
 export const getAssignmentSubmissions = async (
   assignmentId: string
 ): Promise<Submission[]> => {
@@ -74,7 +72,6 @@ export const getStudentSubmission = async (
 export const createSubmission = async (
   data: CreateSubmissionDto
 ): Promise<Submission> => {
-  // Fix: Change from "/submissions" to "/assignments/submissions"
   const response = await API.post("/assignments/submissions", data);
   return response.data;
 };
@@ -88,7 +85,6 @@ export const addSubmissionAttachment = async (
     fileSize?: number;
   }
 ): Promise<void> => {
-  // Fix: Change from "/submissions/${submissionId}/attachments" to "/assignments/submissions/${submissionId}/attachments"
   await API.post(
     `/assignments/submissions/${submissionId}/attachments`,
     attachment
@@ -99,7 +95,6 @@ export const gradeSubmission = async (
   submissionId: string,
   data: GradeSubmissionDto
 ): Promise<Submission> => {
-  // Fix: Change from "/submissions/${submissionId}/grade" to "/assignments/submissions/${submissionId}/grade"
   const response = await API.post(
     `/assignments/submissions/${submissionId}/grade`,
     data

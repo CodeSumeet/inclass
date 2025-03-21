@@ -16,20 +16,17 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   isConnected: false,
 
   initialize: () => {
-    // Get the current user from auth store
     const user = useAuthStore.getState().user;
 
     if (!user) {
       return;
     }
 
-    // Disconnect existing socket if any
     const { socket } = get();
     if (socket) {
       socket.disconnect();
     }
 
-    // Create new socket connection
     const socketInstance = io(
       import.meta.env.VITE_API_URL || "http://localhost:5000",
       {
@@ -75,13 +72,10 @@ export const useSocketStore = create<SocketState>((set, get) => ({
   },
 }));
 
-// Create a listener to initialize/disconnect socket when auth state changes
 useAuthStore.subscribe((state, prevState) => {
   if (state.user && !prevState.user) {
-    // User logged in
     useSocketStore.getState().initialize();
   } else if (!state.user && prevState.user) {
-    // User logged out
     useSocketStore.getState().disconnect();
   }
 });

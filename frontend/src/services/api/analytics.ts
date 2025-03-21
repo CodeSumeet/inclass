@@ -26,7 +26,6 @@ export const getStudentDashboardStats = async () => {
 };
 
 export const getAllStudentPerformances = async (classroomId: string) => {
-  // This endpoint doesn't exist in the backend, so we need to modify our approach
   const response = await API.get(`/classrooms/${classroomId}/enrollments`);
   const enrollments = response.data;
 

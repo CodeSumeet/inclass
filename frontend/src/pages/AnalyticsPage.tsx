@@ -20,7 +20,7 @@ import {
   Title,
 } from "chart.js";
 import { Bar } from "react-chartjs-2";
-import API, { fetchClassroomDetails } from "@/services/api";
+import { fetchClassroomDetails } from "@/services/api";
 
 ChartJS.register(
   CategoryScale,
@@ -96,7 +96,6 @@ const AnalyticsPage: FC = () => {
     PerformanceMetric[]
   >([]);
 
-  // Update the useEffect to fetch student performances for teachers
   useEffect(() => {
     const fetchData = async () => {
       if (!classroomId || !user) return;
@@ -114,7 +113,6 @@ const AnalyticsPage: FC = () => {
             setAnalytics(analyticsData);
 
             if (userIsTeacher && analyticsData.students) {
-              // For teachers, set the student performances from analytics data
               const formattedStudentPerformances = analyticsData.students.map(
                 (student: any) => ({
                   userId: student.userId,
@@ -134,7 +132,6 @@ const AnalyticsPage: FC = () => {
 
               setStudentPerformances(formattedStudentPerformances);
             } else if (!userIsTeacher) {
-              // For students, find their performance in the analytics data
               const studentData = analyticsData.students?.find(
                 (s: any) => s.userId === user.userId
               );
@@ -149,7 +146,6 @@ const AnalyticsPage: FC = () => {
                   overallGrade: studentData.performance.overallGrade,
                 });
               } else {
-                // Fallback to API call if not found in analytics
                 try {
                   const performanceData = await getUserPerformance(
                     classroomId,
@@ -164,7 +160,6 @@ const AnalyticsPage: FC = () => {
           }
         } catch (err) {
           console.error("Error determining user role:", err);
-          // Fallback logic...
         }
 
         setLoading(false);

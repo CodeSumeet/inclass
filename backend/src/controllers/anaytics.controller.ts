@@ -22,7 +22,6 @@ export const getClassroomAnalytics = asyncHandler(
     }
 
     try {
-      // Get total students
       const totalStudents = await prisma.enrollment.count({
         where: {
           classroomId,
@@ -30,7 +29,6 @@ export const getClassroomAnalytics = asyncHandler(
         },
       });
 
-      // Get active students (students who have submitted at least one assignment or quiz)
       const activeStudentsIds = await prisma.submission.findMany({
         where: {
           assignment: {
@@ -45,15 +43,13 @@ export const getClassroomAnalytics = asyncHandler(
 
       const activeStudents = activeStudentsIds.length;
 
-      // Get assignment stats
       const totalAssignments = await prisma.assignment.count({
         where: {
           classroomId,
-          status: "ACTIVE", // Only count published assignments
+          status: "ACTIVE",
         },
       });
 
-      // Get all submissions for this classroom
       const submissions = await prisma.submission.findMany({
         where: {
           assignment: {
@@ -67,7 +63,6 @@ export const getClassroomAnalytics = asyncHandler(
 
       const submittedAssignments = submissions.length;
 
-      // Calculate average score for graded assignments
       const gradedSubmissions = submissions.filter(
         (s) => s.grade !== null && s.grade.points !== null
       );
@@ -80,11 +75,10 @@ export const getClassroomAnalytics = asyncHandler(
             ) / gradedSubmissions.length
           : 0;
 
-      // Get quiz stats
       const totalQuizzes = await prisma.quiz.count({
         where: {
           classroomId,
-          isPublished: true, // Using isPublished instead of status
+          isPublished: true,
         },
       });
 
@@ -99,7 +93,6 @@ export const getClassroomAnalytics = asyncHandler(
         },
       });
 
-      // Get unique attempted quizzes
       const attemptedQuizzes = await prisma.quizAttempt.findMany({
         where: {
           quiz: {
@@ -112,7 +105,6 @@ export const getClassroomAnalytics = asyncHandler(
         distinct: ["quizId"],
       });
 
-      // Calculate average quiz score
       const quizAvgScore =
         quizAttempts.length > 0
           ? quizAttempts.reduce(
@@ -121,7 +113,6 @@ export const getClassroomAnalytics = asyncHandler(
             ) / quizAttempts.length
           : 0;
 
-      // Get classroom details
       const classroom = await prisma.classroom.findUnique({
         where: { id: classroomId },
         select: {
@@ -131,7 +122,6 @@ export const getClassroomAnalytics = asyncHandler(
         },
       });
 
-      // Get student performance data
       const students = await prisma.enrollment.findMany({
         where: {
           classroomId,
@@ -149,16 +139,14 @@ export const getClassroomAnalytics = asyncHandler(
         },
       });
 
-      // Calculate performance for each student
       const studentPerformances = await Promise.all(
         students.map(async (student) => {
-          // Calculate assignment completion rate
           const studentSubmissions = await prisma.submission.count({
             where: {
               studentId: student.userId,
               assignment: {
                 classroomId,
-                status: "ACTIVE", // Only count active assignments
+                status: "ACTIVE",
               },
             },
           });
@@ -168,13 +156,12 @@ export const getClassroomAnalytics = asyncHandler(
               ? (studentSubmissions / totalAssignments) * 100
               : 0;
 
-          // Calculate quiz average score
           const studentQuizAttempts = await prisma.quizAttempt.findMany({
             where: {
               userId: student.userId,
               quiz: {
                 classroomId,
-                isPublished: true, // Only count published quizzes
+                isPublished: true,
               },
             },
             select: {
@@ -190,7 +177,6 @@ export const getClassroomAnalytics = asyncHandler(
                 ) / studentQuizAttempts.length
               : 0;
 
-          // Calculate overall grade
           const overallGrade =
             assignmentCompletionRate * 0.7 + quizAvgScore * 0.3;
 
@@ -245,7 +231,6 @@ export const getUserEngagement = asyncHandler(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Since getUserEngagement doesn't exist, return simplified engagement data
     const engagement = {
       userId,
       classroomId,

@@ -58,12 +58,10 @@ const ProfilePage: FC = () => {
   }, [user]);
 
   useEffect(() => {
-    // Create preview URL for the selected profile picture
     if (profilePic) {
       const objectUrl = URL.createObjectURL(profilePic);
       setPreviewUrl(objectUrl);
 
-      // Clean up the URL when component unmounts or when file changes
       return () => URL.revokeObjectURL(objectUrl);
     }
   }, [profilePic]);
@@ -88,7 +86,6 @@ const ProfilePage: FC = () => {
         userId: user.userId,
       });
 
-      // Update user profile with new image URL
       await updateProfile({
         ...formData,
         profilePic: result.secure_url,
@@ -116,11 +113,9 @@ const ProfilePage: FC = () => {
     }
 
     try {
-      // If there's a profile pic, upload it first
       if (profilePic && user) {
         await handleProfilePicUpload();
       } else {
-        // Otherwise just update the profile data
         await updateProfile(formData as UpdateProfileData);
       }
 
@@ -160,7 +155,6 @@ const ProfilePage: FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-6xl">
-      {/* Profile Header */}
       <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
         <div className="flex items-center gap-6">
           <div className="relative">
@@ -299,9 +293,7 @@ const ProfilePage: FC = () => {
         )}
       </div>
 
-      {/* Classes Section */}
       <div className="space-y-8">
-        {/* Teaching Classes */}
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
@@ -342,7 +334,6 @@ const ProfilePage: FC = () => {
           )}
         </div>
 
-        {/* Enrolled Classes */}
         <div>
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">

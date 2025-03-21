@@ -14,16 +14,16 @@ html {
 
 @layer base {
   :root {
-    --background: 210 50% 98%; /* Soft blue-tinted background */
+    --background: 210 50% 98%;
     --foreground: 224 71% 12%;
 
-    --primary: 217 91% 60%; /* Educational blue */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 280 84% 60%; /* Playful purple */
+    --secondary: 280 84% 60%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 162 84% 39%; /* Fresh mint */
+    --accent: 162 84% 39%;
     --accent-foreground: 144 71% 15%;
 
     --success: 142 76% 36%;
@@ -114,7 +114,6 @@ html {
   }
 }
 
-/* Component Base Styles */
 @layer components {
   .input-base {
     @apply w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm
@@ -141,7 +140,6 @@ html {
   }
 }
 
-/* Animation Classes */
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
@@ -156,7 +154,6 @@ html {
   }
 }
 
-/* Educational UI Elements */
 .chalkboard {
   @apply bg-gray-800 text-white p-6 rounded-lg shadow-lg;
   background-image: radial-gradient(

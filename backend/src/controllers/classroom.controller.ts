@@ -6,7 +6,7 @@ import prisma from "../config/db";
 export const createClassroom = asyncHandler(
   async (req: Request, res: Response) => {
     const { userId, name, section, subject, roomNo, description, coverImage } =
-      req.body; // Include coverImage
+      req.body;
     const classroom = await ClassroomService.createClassroom(
       userId,
       name,
@@ -14,7 +14,7 @@ export const createClassroom = asyncHandler(
       subject,
       roomNo,
       description,
-      coverImage // Pass coverImage to the service
+      coverImage
     );
     res.status(201).json(classroom);
   }
@@ -69,7 +69,6 @@ export const getUserRoleInClassroom = asyncHandler(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Check if the user is the owner of the classroom
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
     });
@@ -82,7 +81,6 @@ export const getUserRoleInClassroom = asyncHandler(
       return res.status(200).json({ role: "TEACHER" });
     }
 
-    // Check if the user is enrolled in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -109,7 +107,6 @@ export const getClassroomParticipants = asyncHandler(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Check if the classroom exists
     const classroom = await prisma.classroom.findUnique({
       where: { id: classroomId },
       include: {
@@ -129,7 +126,6 @@ export const getClassroomParticipants = asyncHandler(
       return res.status(404).json({ message: "Classroom not found" });
     }
 
-    // Check if the user is enrolled in the classroom
     const userEnrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -143,7 +139,6 @@ export const getClassroomParticipants = asyncHandler(
         .json({ message: "You are not enrolled in this classroom" });
     }
 
-    // Get all students enrolled in the classroom
     const enrollments = await prisma.enrollment.findMany({
       where: {
         classroomId,

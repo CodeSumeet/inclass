@@ -4,7 +4,7 @@ export interface Classroom {
   description?: string;
   section: string;
   subject: string;
-  coverImage?: string; // Ensure this field exists
+  coverImage?: string;
   ownerId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -15,7 +15,7 @@ export interface CreateClassroomDto {
   description?: string;
   section: string;
   subject: string;
-  coverImage?: string; // Ensure this field exists
+  coverImage?: string;
 }
 
 export interface UpdateClassroomDto {
@@ -23,5 +23,5 @@ export interface UpdateClassroomDto {
   description?: string;
   section?: string;
   subject?: string;
-  coverImage?: string; // Ensure this field exists
+  coverImage?: string;
 }

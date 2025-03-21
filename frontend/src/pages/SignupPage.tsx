@@ -39,7 +39,7 @@ const SignUpPage = () => {
         formData.lastName
       );
       setUser(userCredential.user);
-      navigate("/dashboard");
+      navigate("/classes");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -54,7 +54,7 @@ const SignUpPage = () => {
     try {
       const userCredential = await signInWithGoogle();
       setUser(userCredential.user);
-      navigate("/dashboard");
+      navigate("/classes");
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -64,10 +64,8 @@ const SignUpPage = () => {
 
   return (
     <div className="min-h-screen w-full bg-background grid lg:grid-cols-2">
-      {/* Left: Sign Up Form */}
       <div className="flex flex-col items-center justify-center px-6 lg:px-20 py-12">
         <div className="w-full max-w-[400px] mx-auto space-y-6">
-          {/* Logo */}
           <Link
             to="/"
             className="flex items-center gap-2 mb-8"
@@ -83,7 +81,6 @@ const SignUpPage = () => {
             </span>
           </Link>
 
-          {/* Header */}
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold tracking-tight">
               Create an account
@@ -93,7 +90,6 @@ const SignUpPage = () => {
             </p>
           </div>
 
-          {/* Sign Up Form */}
           <form
             onSubmit={handleSubmit}
             className="space-y-4"
@@ -185,7 +181,6 @@ const SignUpPage = () => {
             </Button>
           </form>
 
-          {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-200" />
@@ -197,7 +192,6 @@ const SignUpPage = () => {
             </div>
           </div>
 
-          {/* Social Sign Up */}
           <Button
             type="button"
             variant="outline"
@@ -215,7 +209,6 @@ const SignUpPage = () => {
             {loading ? "Signing in..." : "Sign up with Google"}
           </Button>
 
-          {/* Sign In Link */}
           <p className="text-center text-sm text-gray-500">
             Already have an account?{" "}
             <Link
@@ -228,7 +221,6 @@ const SignUpPage = () => {
         </div>
       </div>
 
-      {/* Right: Illustration */}
       <div className="hidden lg:flex flex-col items-center justify-center bg-white border-l border-gray-100">
         <div className="max-w-[420px] text-center">
           <img

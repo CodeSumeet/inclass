@@ -43,7 +43,6 @@ router.delete(
   AnnouncementController.deleteAnnouncement
 );
 
-// Material routes
 router.post(
   "/:classroomId/materials",
   authenticate,

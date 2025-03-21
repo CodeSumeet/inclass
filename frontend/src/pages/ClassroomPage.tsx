@@ -132,18 +132,6 @@ const ClassroomPage = () => {
     return "Due soon";
   };
 
-  const handleCreateQuiz = () => {
-    window.location.href = `/classroom/${classroomId}/quiz/create`;
-  };
-
-  const handleCreateAssignment = () => {
-    window.location.href = `/classroom/${classroomId}/assignment/create`;
-  };
-
-  const handleUploadMaterial = () => {
-    window.location.href = `/classroom/${classroomId}/material/upload`;
-  };
-
   const handlePostAnnouncementWithImages = async () => {
     if (!announcement || isSubmitting) return;
 

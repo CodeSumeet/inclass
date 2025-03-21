@@ -9,21 +9,16 @@ import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import ClassesPage from "./pages/ClassesPage";
 import ClassroomPage from "./pages/ClassroomPage";
-import CalendarPage from "./pages/CalendarPage";
-import NotificationsPage from "./pages/NotificationsPage";
-import SettingsPage from "./pages/SettingsPage";
 import AssignmentDetailPage from "./components/features/classroom/assignment/AssignmentDetailPage";
 import QuizDetailPage from "./pages/QuizDetailPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import VideoConferencePage from "./pages/VideoConferencePage";
-import AssignmentEditForm from "./components/features/classroom/assignment/AssignmentEditForm";
 import AssignmentEditPage from "./pages/AssignmentEditPage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Auth & Public Routes */}
         <Route
           path="/"
           element={<LandingPage />}
@@ -39,7 +34,6 @@ function App() {
           />
         </Route>
 
-        {/* Protected App Routes */}
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route
@@ -78,23 +72,9 @@ function App() {
               path="/meeting/:meetingId"
               element={<VideoConferencePage />}
             />
-
-            <Route
-              path="/calendar"
-              element={<CalendarPage />}
-            />
-            <Route
-              path="/notifications"
-              element={<NotificationsPage />}
-            />
-            <Route
-              path="/settings"
-              element={<SettingsPage />}
-            />
           </Route>
         </Route>
 
-        {/* 404 */}
         <Route
           path="*"
           element={

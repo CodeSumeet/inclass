@@ -12,7 +12,6 @@ export const uploadMaterial = async (
   file: File,
   data: Omit<CreateMaterialDto, "url" | "fileSize" | "fileType">
 ): Promise<Material> => {
-  // First upload the file to Cloudinary
   const formData = new FormData();
   formData.append("file", file);
   formData.append(
@@ -32,7 +31,6 @@ export const uploadMaterial = async (
 
   const cloudinaryData = await cloudinaryResponse.json();
 
-  // Then create the material record with the file URL
   const materialData: CreateMaterialDto = {
     ...data,
     url: cloudinaryData.secure_url,

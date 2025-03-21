@@ -1,7 +1,4 @@
-import React from "react";
-import { useParams } from "react-router-dom";
 import AssignmentEditForm from "@/components/features/classroom/assignment/AssignmentEditForm";
-import AppLayout from "@/layouts/AppLayout";
 
 const AssignmentEditPage = () => {
   return (

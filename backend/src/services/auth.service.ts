@@ -18,10 +18,9 @@ export const signUpUser = async (userData: {
       );
     }
 
-    // Generate avatar URL using the user's name
     const avatarUrl = getAvatarUrl({
       name: `${firstName} ${lastName}`,
-      size: 200, // Higher resolution for storage
+      size: 200,
     });
 
     const user = await prisma.user.create({
@@ -30,7 +29,7 @@ export const signUpUser = async (userData: {
         firstName,
         lastName,
         email,
-        profilePic: avatarUrl, // Store the avatar URL
+        profilePic: avatarUrl,
       },
     });
 

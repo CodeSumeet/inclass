@@ -1,15 +1,11 @@
 export const processAnnouncementContent = () => {
-  // Find all announcement content divs
   const contentDivs = document.querySelectorAll(".announcement-content");
 
   contentDivs.forEach((div) => {
-    // Process images for preview functionality
     const images = div.querySelectorAll("img");
     images.forEach((img) => {
       if (!img.onclick) {
-        // Only add click handler if not already added
         img.onclick = () => {
-          // Create modal for image preview
           const modal = document.createElement("div");
           modal.className =
             "fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4";
@@ -34,7 +30,6 @@ export const processAnnouncementContent = () => {
 
           document.body.appendChild(modal);
 
-          // Close modal when clicking outside or on close button
           modal.onclick = () => {
             document.body.removeChild(modal);
           };
@@ -51,18 +46,15 @@ export const processAnnouncementContent = () => {
       }
     });
 
-    // Process document links
     const links = div.querySelectorAll("a");
     links.forEach((link) => {
       const href = link.getAttribute("href") || "";
       const isDocument = /\.(pdf|doc|docx|ppt|pptx|xls|xlsx|txt)$/i.test(href);
 
       if (isDocument && !link.classList.contains("document-link")) {
-        // Get file extension
         const extension = href.split(".").pop()?.toLowerCase();
         let icon = "📎";
 
-        // Set appropriate icon based on file type
         switch (extension) {
           case "pdf":
             icon = "📄";
@@ -81,10 +73,8 @@ export const processAnnouncementContent = () => {
             break;
         }
 
-        // Add icon to document links if not already styled
         link.classList.add("document-link");
 
-        // Only add icon if it doesn't already have one
         if (!link.querySelector(".document-icon")) {
           const fileName = link.textContent || "Document";
           link.innerHTML = `<span class="document-icon">${icon}</span> ${fileName}`;
@@ -95,7 +85,6 @@ export const processAnnouncementContent = () => {
       }
     });
 
-    // Make tables responsive (React Quill can create tables)
     const tables = div.querySelectorAll("table");
     tables.forEach((table) => {
       if (!table.parentElement?.classList.contains("table-responsive")) {
@@ -106,7 +95,6 @@ export const processAnnouncementContent = () => {
       }
     });
 
-    // Fix Quill specific classes and styles
     const quillClasses = div.querySelectorAll(
       ".ql-align-center, .ql-align-right, .ql-align-justify"
     );

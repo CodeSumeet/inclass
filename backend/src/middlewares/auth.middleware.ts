@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import admin from "../config/firebase";
 
-// Extend the Request type to include user
 declare global {
   namespace Express {
     interface Request {
@@ -30,7 +29,6 @@ export const authenticate = async (
 
     const decodedToken = await admin.auth().verifyIdToken(token);
 
-    // Add user to request
     req.user = {
       userId: decodedToken.uid,
       email: decodedToken.email || "",

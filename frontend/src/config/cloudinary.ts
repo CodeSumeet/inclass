@@ -1,7 +1,7 @@
 import { Cloudinary } from "cloudinary-core";
 
 const cloudinary = new Cloudinary({
-  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME, // Replace with your Cloudinary cloud name
+  cloud_name: import.meta.env.VITE_CLOUDINARY_CLOUD_NAME,
   secure: true,
 });
 

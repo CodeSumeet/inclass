@@ -14,11 +14,10 @@ model User {
   email        String    @unique
   profilePic   String?
   phone        String?
-  authProvider String    @default("email") // "email" or "google"
+  authProvider String    @default("email")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // Relations
   enrollments    Enrollment[]
   classrooms     Classroom[]    @relation("ClassroomOwner")
   announcements  Announcement[]
@@ -48,7 +47,6 @@ model Classroom {
   isDeleted   Boolean  @default(false)
   ownerId     String
 
-  // Relations
   owner         User          @relation(fields: [ownerId], references: [userId], name: "ClassroomOwner")
   enrollments   Enrollment[]
   announcements Announcement[]
@@ -70,7 +68,6 @@ model Topic {
   classroomId String
   createdAt   DateTime @default(now())
 
-  // Relations
   classroom   Classroom   @relation(fields: [classroomId], references: [id])
   assignments Assignment[]
 }
@@ -82,7 +79,7 @@ model Announcement {
  createdById String
  createdAt   DateTime @default(now())
  updatedAt   DateTime @updatedAt
- // Relations
+
  classroom  Classroom @relation(fields: [classroomId], references: [id])
  createdBy  User      @relation(fields: [createdById], references: [userId])
  comments   Comment[]
@@ -92,24 +89,22 @@ model Assignment {
   id           String    @id @default(uuid())
   title        String
   instructions String
-  description  String    @default("") // Added for compatibility with frontend
+  description  String    @default("")
   points       Int?
   dueDate      DateTime?
   topicId      String?
   classroomId  String
-  status       String    @default("ACTIVE") // Added: DRAFT, ACTIVE, CLOSED
+  status       String    @default("ACTIVE")
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  // Relations
   classroom   Classroom    @relation(fields: [classroomId], references: [id])
   topic       Topic?       @relation(fields: [topicId], references: [id])
   submissions Submission[]
   comments    Comment[]
-  attachments AssignmentAttachment[] // Added for file attachments
+  attachments AssignmentAttachment[]
 }
 
-// New model for assignment attachments
 model AssignmentAttachment {
   id           String    @id @default(uuid())
   assignmentId String
@@ -119,7 +114,6 @@ model AssignmentAttachment {
   fileSize     Int
   createdAt    DateTime  @default(now())
 
-  // Relations
   assignment   Assignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
 }
 
@@ -128,23 +122,21 @@ model Submission {
   assignmentId String
   studentId    String
   status       SubmissionStatus @default(ASSIGNED)
-  comment      String?          // Added for student comments
-  submissionDate DateTime       @default(now()) // Added for tracking submission time
+  comment      String?          
+  submissionDate DateTime       @default(now())
   turnedInAt   DateTime?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
-  // Relations
   assignment   Assignment @relation(fields: [assignmentId], references: [id])
   student      User       @relation(fields: [studentId], references: [userId])
   comments     Comment[]
-  attachments  SubmissionAttachment[] // Added for file attachments
-  grade        Grade?                 // Added for detailed grading
+  attachments  SubmissionAttachment[] 
+  grade        Grade?                 
 
   @@unique([assignmentId, studentId])
 }
 
-// New model for submission attachments
 model SubmissionAttachment {
   id           String    @id @default(uuid())
   submissionId String
@@ -154,11 +146,9 @@ model SubmissionAttachment {
   fileSize     Int
   createdAt    DateTime  @default(now())
 
-  // Relations
   submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
 }
 
-// New model for detailed grading
 model Grade {
   id          String    @id @default(uuid())
   submissionId String    @unique
@@ -169,7 +159,6 @@ model Grade {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  // Relations
   submission  Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
   gradedBy    User       @relation(fields: [gradedById], references: [userId], name: "GradedBy")
 }
@@ -187,7 +176,6 @@ model Material {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Relations
   classroom     Classroom @relation(fields: [classroomId], references: [id])
   createdBy     User      @relation(fields: [createdById], references: [userId])
 }
@@ -202,7 +190,6 @@ model Comment {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  // Relations
   createdBy    User         @relation(fields: [createdById], references: [userId])
   assignment   Assignment?  @relation(fields: [assignmentId], references: [id])
   submission   Submission?  @relation(fields: [submissionId], references: [id])
@@ -216,7 +203,6 @@ model Enrollment {
   role        Role
   createdAt   DateTime @default(now())
 
-  // Relations
   user      User      @relation(fields: [userId], references: [userId])
   classroom Classroom @relation(fields: [classroomId], references: [id])
 
@@ -229,7 +215,7 @@ model Quiz {
   title         String
   description   String?
   instructions  String?
-  timeLimit     Int?         // Time limit in minutes, null means no limit
+  timeLimit     Int?         
   dueDate       DateTime?
   classroomId   String
   classroom     Classroom    @relation(fields: [classroomId], references: [id], onDelete: Cascade)
@@ -249,7 +235,7 @@ model Question {
   points        Int          @default(1)
   options       Option[]
   answers       Answer[]
-  orderIndex    Int          // For ordering questions in the quiz
+  orderIndex    Int          
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -260,7 +246,7 @@ model Option {
   question      Question     @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
   optionText    String
   isCorrect     Boolean      @default(false)
-  orderIndex    Int          // For ordering options in the question
+  orderIndex    Int          
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 }
@@ -269,16 +255,16 @@ model QuizAttempt {
   attemptId     String       @id @default(uuid())
   quizId        String
   quiz          Quiz         @relation(fields: [quizId], references: [quizId], onDelete: Cascade)
-  userId        String       // Changed from studentId to userId
+  userId        String       
   user          User         @relation(fields: [userId], references: [userId], onDelete: Cascade)
   startedAt     DateTime     @default(now())
   submittedAt   DateTime?
-  score         Float?       // Calculated score
+  score         Float?       
   answers       Answer[]
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  @@unique([quizId, userId]) // One attempt per user per quiz
+  @@unique([quizId, userId]) 
 }
 
 model Answer {
@@ -287,30 +273,26 @@ model Answer {
   attempt       QuizAttempt  @relation(fields: [attemptId], references: [attemptId], onDelete: Cascade)
   questionId    String
   question      Question     @relation(fields: [questionId], references: [questionId], onDelete: Cascade)
-  selectedOptions String[]   // Array of selected option IDs
-  textAnswer    String?      // For text/essay questions
-  isCorrect     Boolean?     // Whether the answer is correct (null for essay questions)
-  points        Float?       // Points awarded for this answer
+  selectedOptions String[]   
+  textAnswer    String?       
+  isCorrect     Boolean?      
+  points        Float?        
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
 
-  @@unique([attemptId, questionId]) // One answer per question per attempt
+  @@unique([attemptId, questionId])
 }
 
-// ... existing code ...
-
-// Analytics Models
 model AnalyticsEvent {
   id          String    @id @default(uuid())
   eventType   EventType
   userId      String
   classroomId String?
   quizId      String?
-  resourceId  String?   // Generic ID for any resource (assignment, material, etc.)
-  metadata    Json?     // Additional event data
+  resourceId  String?   
+  metadata    Json?     
   createdAt   DateTime  @default(now())
 
-  // Optional relations - using ? to avoid affecting existing data
   classroom   Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
 }
 
@@ -320,12 +302,11 @@ model Report {
   reportType  ReportType
   classroomId String
   createdById String
-  parameters  Json?        // Report configuration parameters
-  data        Json?        // Cached report data
+  parameters  Json?        
+  data        Json?        
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   
-  // Relations
   classroom   Classroom    @relation(fields: [classroomId], references: [id], onDelete: Cascade)
 }
 
@@ -333,25 +314,20 @@ model Dashboard {
   id          String       @id @default(uuid())
   userId      String
   title       String       @default("My Dashboard")
-  layout      Json         // Dashboard widget layout
+  layout      Json         
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
-// ... existing schema code ...
-
-// New models for Analytics and Reporting
-
 model ActivityLog {
   id           String    @id @default(uuid())
-  userId       String    // User who performed the activity
-  activityType String    // Type of activity (login, assignment_submission, quiz_attempt, etc.)
-  resourceId   String?   // ID of the related resource (classroom, assignment, quiz, etc.)
-  resourceType String?   // Type of resource (classroom, assignment, quiz, etc.)
-  metadata     Json?     // Additional data about the activity
+  userId       String    
+  activityType String    
+  resourceId   String?   
+  resourceType String?   
+  metadata     Json?     
   createdAt    DateTime  @default(now())
   
-  // Relation to User
   user         User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
 }
 
@@ -407,7 +383,7 @@ model VideoConference {
   createdBy   User      @relation(fields: [createdById], references: [userId])
   roomName    String
   roomUrl     String
-  status      String    // ACTIVE, ENDED
+  status      String   
   startTime   DateTime
   endTime     DateTime?
   metadata    Json?
@@ -433,7 +409,6 @@ model VideoConferenceParticipant {
   @@unique([conferenceId, userId])
 }
 
-// Enums for analytics
 enum EventType {
   LOGIN
   LOGOUT
@@ -477,8 +452,8 @@ enum SubmissionStatus {
   TURNED_IN
   RETURNED
   GRADED
-  SUBMITTED  // Added for compatibility with frontend
-  LATE       // Added for late submissions
+  SUBMITTED 
+  LATE      
 }
 
 enum MaterialType {

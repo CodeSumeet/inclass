@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import asyncHandler from "../utils/asyncHandler";
 import * as AssignmentService from "../services/assignment.service";
 
-// Assignment Controllers
 export const getClassroomAssignments = asyncHandler(
   async (req: Request, res: Response) => {
     const { classroomId } = req.params;
@@ -45,10 +44,9 @@ export const createAssignment = asyncHandler(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Ensure attachments have fileSize property
     const processedAttachments = attachments?.map((attachment: any) => ({
       ...attachment,
-      fileSize: attachment.fileSize || 0, // Provide a default if missing
+      fileSize: attachment.fileSize || 0,
     }));
 
     const assignment = await AssignmentService.createAssignment(userId, {

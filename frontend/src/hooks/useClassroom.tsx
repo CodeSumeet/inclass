@@ -21,7 +21,6 @@ export const useClassroom = ({ classroomId }: UseClassroomProps) => {
       const response = await API.get(`/classrooms/${classroomId}`);
       setClassroom(response.data);
 
-      // Fetch announcements separately
       const announcementsResponse = await API.get(
         `/classrooms/${classroomId}/announcements`
       );
@@ -49,14 +48,13 @@ export const useClassroom = ({ classroomId }: UseClassroomProps) => {
         }
       );
 
-      // Add the new announcement to the classroom state
       setClassroom((prevClassroom: any) => ({
         ...prevClassroom,
         announcements: [response.data, ...(prevClassroom.announcements || [])],
       }));
 
-      setAnnouncement(""); // Clear the input after posting
-      setIsEditing(false); // Hide the editor after posting
+      setAnnouncement("");
+      setIsEditing(false);
       toast.success("Announcement posted successfully!");
     } catch (error) {
       console.error("Error posting announcement:", error);
@@ -69,7 +67,6 @@ export const useClassroom = ({ classroomId }: UseClassroomProps) => {
     try {
       await API.delete(`/classrooms/announcements/${announcementId}`);
 
-      // Remove the deleted announcement from the classroom state
       setClassroom((prevClassroom: any) => ({
         ...prevClassroom,
         announcements: prevClassroom.announcements.filter(

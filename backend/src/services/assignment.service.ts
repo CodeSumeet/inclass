@@ -2,7 +2,6 @@ import prisma from "../config/db";
 import { SubmissionStatus } from "../types/assignment.types";
 import { sendAssignmentEmail } from "./email.service";
 
-// Assignment Services
 export const getClassroomAssignments = async (classroomId: string) => {
   return prisma.assignment.findMany({
     where: {
@@ -47,7 +46,6 @@ export const createAssignment = async (
     }>;
   }
 ) => {
-  // Check if user is the owner of the classroom
   const classroom = await prisma.classroom.findUnique({
     where: { id: data.classroomId },
   });
@@ -56,7 +54,6 @@ export const createAssignment = async (
     throw new Error("Classroom not found");
   }
 
-  // Get user details for email
   const user = await prisma.user.findUnique({
     where: { userId },
     select: {
@@ -70,7 +67,6 @@ export const createAssignment = async (
   }
 
   if (classroom.ownerId !== userId) {
-    // Check if user is a teacher in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -84,9 +80,7 @@ export const createAssignment = async (
     }
   }
 
-  // Use a transaction to ensure both assignment and attachments are created together
   const assignment = await prisma.$transaction(async (tx) => {
-    // Create the assignment
     const assignment = await tx.assignment.create({
       data: {
         title: data.title,
@@ -100,7 +94,6 @@ export const createAssignment = async (
       },
     });
 
-    // Add attachments if provided
     if (data.attachments && data.attachments.length > 0) {
       await Promise.all(
         data.attachments.map((attachment) =>
@@ -117,7 +110,6 @@ export const createAssignment = async (
       );
     }
 
-    // Return the assignment with attachments
     return tx.assignment.findUnique({
       where: { id: assignment.id },
       include: {
@@ -126,7 +118,6 @@ export const createAssignment = async (
     });
   });
 
-  // Only send emails if the assignment is active
   if (assignment && assignment.status === "ACTIVE") {
     // Send email notifications to students
     sendAssignmentEmail(
@@ -161,7 +152,6 @@ export const updateAssignment = async (
     }>;
   }
 ) => {
-  // Check if assignment exists
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
     include: {
@@ -173,9 +163,7 @@ export const updateAssignment = async (
     throw new Error("Assignment not found");
   }
 
-  // Check if user is the owner of the classroom
   if (assignment.classroom.ownerId !== userId) {
-    // Check if user is a teacher in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -189,7 +177,6 @@ export const updateAssignment = async (
     }
   }
 
-  // Update the assignment
   const updatedAssignment = await prisma.assignment.update({
     where: { id: assignmentId },
     data: {
@@ -206,7 +193,6 @@ export const updateAssignment = async (
     },
   });
 
-  // If new attachments are provided, add them
   if (data.attachments && data.attachments.length > 0) {
     await Promise.all(
       data.attachments.map((attachment) =>
@@ -222,7 +208,6 @@ export const updateAssignment = async (
       )
     );
 
-    // Fetch the updated assignment with new attachments
     return prisma.assignment.findUnique({
       where: { id: assignmentId },
       include: {
@@ -238,7 +223,6 @@ export const deleteAssignment = async (
   userId: string,
   assignmentId: string
 ) => {
-  // Check if assignment exists
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
     include: {
@@ -250,9 +234,7 @@ export const deleteAssignment = async (
     throw new Error("Assignment not found");
   }
 
-  // Check if user is the owner of the classroom
   if (assignment.classroom.ownerId !== userId) {
-    // Check if user is a teacher in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -266,7 +248,6 @@ export const deleteAssignment = async (
     }
   }
 
-  // Delete the assignment
   await prisma.assignment.delete({
     where: { id: assignmentId },
   });
@@ -284,7 +265,6 @@ export const addAssignmentAttachment = async (
     fileSize: number;
   }
 ) => {
-  // Check if assignment exists
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
     include: {
@@ -296,9 +276,7 @@ export const addAssignmentAttachment = async (
     throw new Error("Assignment not found");
   }
 
-  // Check if user is the owner of the classroom
   if (assignment.classroom.ownerId !== userId) {
-    // Check if user is a teacher in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -312,7 +290,6 @@ export const addAssignmentAttachment = async (
     }
   }
 
-  // Add the attachment
   return prisma.assignmentAttachment.create({
     data: {
       assignmentId,
@@ -324,12 +301,10 @@ export const addAssignmentAttachment = async (
   });
 };
 
-// Submission Services
 export const getAssignmentSubmissions = async (
   userId: string,
   assignmentId: string
 ) => {
-  // Check if assignment exists
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
     include: {
@@ -341,9 +316,7 @@ export const getAssignmentSubmissions = async (
     throw new Error("Assignment not found");
   }
 
-  // Check if user is the owner of the classroom
   if (assignment.classroom.ownerId !== userId) {
-    // Check if user is a teacher in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -357,7 +330,6 @@ export const getAssignmentSubmissions = async (
     }
   }
 
-  // Get all submissions for this assignment
   return prisma.submission.findMany({
     where: {
       assignmentId,
@@ -402,7 +374,6 @@ export const createSubmission = async (
   assignmentId: string,
   comment?: string
 ) => {
-  // Check if assignment exists
   const assignment = await prisma.assignment.findUnique({
     where: { id: assignmentId },
     include: {
@@ -414,7 +385,6 @@ export const createSubmission = async (
     throw new Error("Assignment not found");
   }
 
-  // Check if user is enrolled in the classroom
   const enrollment = await prisma.enrollment.findFirst({
     where: {
       userId,
@@ -426,12 +396,10 @@ export const createSubmission = async (
     throw new Error("You are not enrolled in this classroom");
   }
 
-  // Check if assignment is still accepting submissions
   if (assignment.status === "CLOSED") {
     throw new Error("Assignment is closed for submissions");
   }
 
-  // Check if student already submitted
   const existingSubmission = await prisma.submission.findFirst({
     where: {
       assignmentId,
@@ -443,7 +411,6 @@ export const createSubmission = async (
     throw new Error("You have already submitted this assignment");
   }
 
-  // Determine if submission is late
   const isLate = assignment.dueDate ? new Date() > assignment.dueDate : false;
   const status = isLate ? SubmissionStatus.LATE : SubmissionStatus.SUBMITTED;
 
@@ -472,7 +439,6 @@ export const addSubmissionAttachment = async (
     fileSize: number;
   }
 ) => {
-  // Check if submission exists
   const submission = await prisma.submission.findUnique({
     where: { id: submissionId },
   });
@@ -481,12 +447,10 @@ export const addSubmissionAttachment = async (
     throw new Error("Submission not found");
   }
 
-  // Check if user is the owner of the submission
   if (submission.studentId !== userId) {
     throw new Error("You can only add attachments to your own submissions");
   }
 
-  // Add the attachment
   await prisma.submissionAttachment.create({
     data: {
       submissionId,
@@ -497,7 +461,6 @@ export const addSubmissionAttachment = async (
     },
   });
 
-  // Return the updated submission
   return prisma.submission.findUnique({
     where: { id: submissionId },
     include: {
@@ -513,7 +476,6 @@ export const gradeSubmission = async (
   points: number,
   feedback?: string
 ) => {
-  // Check if submission exists
   const submission = await prisma.submission.findUnique({
     where: { id: submissionId },
     include: {
@@ -529,9 +491,7 @@ export const gradeSubmission = async (
     throw new Error("Submission not found");
   }
 
-  // Check if user is the owner of the classroom
   if (submission.assignment.classroom.ownerId !== userId) {
-    // Check if user is a teacher in the classroom
     const enrollment = await prisma.enrollment.findFirst({
       where: {
         userId,
@@ -545,7 +505,6 @@ export const gradeSubmission = async (
     }
   }
 
-  // Check if points are valid
   if (
     points < 0 ||
     (submission.assignment.points && points > submission.assignment.points)
@@ -555,7 +514,6 @@ export const gradeSubmission = async (
     );
   }
 
-  // Create or update the grade
   const existingGrade = await prisma.grade.findUnique({
     where: { submissionId },
   });
@@ -581,7 +539,6 @@ export const gradeSubmission = async (
       },
     });
 
-    // Update submission status to GRADED
     await prisma.submission.update({
       where: { id: submissionId },
       data: {
@@ -590,7 +547,6 @@ export const gradeSubmission = async (
     });
   }
 
-  // Return the updated submission with grade
   return prisma.submission.findUnique({
     where: { id: submissionId },
     include: {

@@ -14,7 +14,6 @@ export const getMaterialTypeFromFile = (file: File): MaterialType => {
   ) {
     return MaterialType.DOCUMENT;
   } else {
-    // Default to document for unknown types
     return MaterialType.DOCUMENT;
   }
 };
@@ -22,10 +21,10 @@ export const getMaterialTypeFromFile = (file: File): MaterialType => {
 export const isFileTypeAllowed = (file: File): boolean => {
   const allowedTypes = [
     "application/pdf",
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
-    "application/msword", // doc
-    "application/vnd.ms-powerpoint", // ppt
-    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // pptx
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/msword",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     "video/mp4",
     "image/jpeg",
     "image/jpg",

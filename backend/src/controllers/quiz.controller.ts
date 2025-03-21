@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import asyncHandler from "../utils/asyncHandler";
 import * as QuizService from "../services/quiz.service";
 
-// Quiz Controllers
 export const getClassroomQuizzes = asyncHandler(
   async (req: Request, res: Response) => {
     const { classroomId } = req.params;
@@ -32,7 +31,7 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
     dueDate,
     classroomId,
     isPublished,
-    questions = [], // Add default empty array for questions
+    questions = [],
   } = req.body;
   const userId = req.user?.userId;
 
@@ -48,7 +47,7 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
     dueDate: dueDate ? new Date(dueDate) : undefined,
     classroomId,
     isPublished,
-    questions, // Pass the questions array to the service
+    questions,
   });
 
   res.status(201).json(quiz);
@@ -88,7 +87,6 @@ export const deleteQuiz = asyncHandler(async (req: Request, res: Response) => {
   res.status(200).json(result);
 });
 
-// Question Controllers
 export const createQuestion = asyncHandler(
   async (req: Request, res: Response) => {
     const { quizId, questionText, questionType, points, options, orderIndex } =
@@ -133,8 +131,6 @@ export const updateQuestion = asyncHandler(
   }
 );
 
-// ... continuing from previous code
-
 export const deleteQuestion = asyncHandler(
   async (req: Request, res: Response) => {
     const { questionId } = req.params;
@@ -149,7 +145,6 @@ export const deleteQuestion = asyncHandler(
   }
 );
 
-// Option Controllers
 export const createOption = asyncHandler(
   async (req: Request, res: Response) => {
     const { questionId, optionText, isCorrect, orderIndex } = req.body;
@@ -204,7 +199,6 @@ export const deleteOption = asyncHandler(
   }
 );
 
-// Quiz Attempt Controllers
 export const startQuizAttempt = asyncHandler(
   async (req: Request, res: Response) => {
     const { quizId } = req.body;
