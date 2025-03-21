@@ -1,4 +1,3 @@
-// frontend/src/services/api/classroom.ts
 import API from "./index";
 
 export const fetchClassroomDetails = async (classroomId: string) => {

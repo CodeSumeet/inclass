@@ -16,6 +16,8 @@ import AssignmentDetailPage from "./components/features/classroom/assignment/Ass
 import QuizDetailPage from "./pages/QuizDetailPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import VideoConferencePage from "./pages/VideoConferencePage";
+import AssignmentEditForm from "./components/features/classroom/assignment/AssignmentEditForm";
+import AssignmentEditPage from "./pages/AssignmentEditPage";
 
 function App() {
   return (
@@ -59,6 +61,10 @@ function App() {
             <Route
               path="/classrooms/:classroomId/assignments/:assignmentId"
               element={<AssignmentDetailPage />}
+            />
+            <Route
+              path="classrooms/:classroomId/assignments/edit/:assignmentId"
+              element={<AssignmentEditPage />}
             />
             <Route
               path="/classrooms/:classroomId/quizzes/:quizId"

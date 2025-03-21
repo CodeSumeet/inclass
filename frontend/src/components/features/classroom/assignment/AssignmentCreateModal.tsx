@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/common/Button/Button";
 import { FileUpload } from "@/components/common/Input";
+import Textarea from "@/components/common/Input/Textarea";
+import Input from "@/components/common/Input/Input";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/useAuthStore";
 import { uploadToCloudinary } from "@/utils/cloudinaryUtils";
@@ -8,125 +10,40 @@ import { createAssignment } from "@/services/api/assignment";
 import { AssignmentStatus } from "@/types/assignment.types";
 import { X } from "lucide-react";
 
-// Create Textarea and Input components since they're missing
-const Textarea = ({
-  label,
-  value,
-  onChange,
-  placeholder,
-  rows = 3,
-  required = false,
-}: any) => {
-  return (
-    <div className="flex flex-col w-full">
-      {label && (
-        <label className="block mb-2 text-sm font-medium">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-      )}
-      <textarea
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        rows={rows}
-        required={required}
-      />
-    </div>
-  );
-};
-
-const Input = ({
-  label,
-  type = "text",
-  value,
-  onChange,
-  min,
-  max,
-  required = false,
-}: any) => {
-  return (
-    <div className="flex flex-col w-full">
-      {label && (
-        <label className="block mb-2 text-sm font-medium">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-      )}
-      <input
-        type={type}
-        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-        value={value}
-        onChange={onChange}
-        min={min}
-        max={max}
-        required={required}
-      />
-    </div>
-  );
-};
-
 interface AssignmentCreateModalProps {
-  classroomId: string;
   isOpen: boolean;
   onClose: () => void;
+  classroomId: string;
   onAssignmentCreated: () => void;
 }
 
 const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
-  classroomId,
   isOpen,
   onClose,
+  classroomId,
   onAssignmentCreated,
 }) => {
   const { user } = useAuthStore();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [instructions, setInstructions] = useState("");
-  const [points, setPoints] = useState(100);
+  const [points, setPoints] = useState<number>(100);
   const [dueDate, setDueDate] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isDraft, setIsDraft] = useState(false);
-
-  // Close modal when escape key is pressed
-  useEffect(() => {
-    const handleEsc = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        handleClose();
-      }
-    };
-
-    if (isOpen) {
-      window.addEventListener("keydown", handleEsc);
-    }
-
-    return () => {
-      window.removeEventListener("keydown", handleEsc);
-    };
-  }, [isOpen]);
-
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setInstructions("");
-    setPoints(100);
-    setDueDate("");
-    setFile(null);
-    setError(null);
-    setIsDraft(false);
-  };
 
   const handleClose = () => {
-    resetForm();
-    onClose();
+    if (!loading) {
+      onClose();
+    }
   };
 
-  const handleFileChange = (selectedFile: File | null) => {
-    setFile(selectedFile);
+  const handleFileChange = (newFile: File | null) => {
+    setFile(newFile);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, saveAsDraft: boolean) => {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -134,45 +51,22 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
       return;
     }
 
-    if (!dueDate) {
-      setError("Due date is required");
+    if (!dueDate && !saveAsDraft) {
+      setError("Due date is required for published assignments");
       return;
     }
-
-    if (points < 0) {
-      setError("Points cannot be negative");
-      return;
-    }
-
-    if (!user) {
-      setError("You must be logged in to create an assignment");
-      return;
-    }
-
-    if (loading) return; // Prevent duplicate submissions
 
     setLoading(true);
     setError(null);
 
     try {
-      // Prepare assignment data
-      const assignmentData = {
-        classroomId,
-        title: title.trim(),
-        description: description.trim(),
-        instructions: instructions.trim() || undefined,
-        points,
-        dueDate: new Date(dueDate).toISOString(),
-        status: isDraft ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE,
-      };
+      let attachments: any = [];
 
-      // If there's a file, upload it first
-      let attachments = undefined;
       if (file) {
         const uploadResult = await uploadToCloudinary({
           file,
           fileType: "assignment",
-          userId: user.userId,
+          userId: user?.userId,
           classroomId,
         });
 
@@ -181,30 +75,28 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
             url: uploadResult.secure_url,
             fileName: file.name,
             fileType: file.type,
-            fileSize: file.size,
           },
         ];
       }
 
-      // Create assignment only once with attachments if they exist
       await createAssignment({
-        ...assignmentData,
+        classroomId,
+        title,
+        description,
+        instructions,
+        points: Number(points),
+        dueDate: new Date(dueDate).toISOString(),
         attachments,
+        status: saveAsDraft ? AssignmentStatus.DRAFT : AssignmentStatus.ACTIVE,
       });
 
-      toast.success(
-        `Assignment ${isDraft ? "saved as draft" : "created"} successfully!`
-      );
-      resetForm();
+      toast.success("Assignment created successfully");
       onAssignmentCreated();
-      onClose();
-    } catch (error) {
-      console.error("Error creating assignment:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Failed to create assignment. Please try again."
-      );
+      handleClose();
+    } catch (err) {
+      console.error(err);
+      setError("Failed to create assignment");
+      toast.error("Failed to create assignment");
     } finally {
       setLoading(false);
     }
@@ -213,115 +105,91 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-[600px] max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">Create New Assignment</h2>
+            <h2 className="text-xl font-bold">Create Assignment</h2>
             <Button
               variant="ghost"
               size="sm"
               onClick={handleClose}
-              className="h-8 w-8 rounded-full p-0 flex items-center justify-center"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-600 p-3 rounded-md mb-4">
+            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
               {error}
             </div>
           )}
 
-          <form
-            onSubmit={handleSubmit}
-            className="space-y-4"
-          >
-            <Input
-              label="Title"
-              value={title}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setTitle(e.target.value)
-              }
-              required
-            />
+          <form onSubmit={(e) => e.preventDefault()}>
+            <div className="mb-4">
+              <Input
+                label="Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Assignment title"
+                required
+              />
+            </div>
 
-            <Textarea
-              label="Description"
-              value={description}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setDescription(e.target.value)
-              }
-              placeholder="Provide a brief description of the assignment"
-              required
-            />
+            <div className="mb-4">
+              <Textarea
+                label="Description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Brief description of the assignment"
+                rows={3}
+              />
+            </div>
 
-            <Textarea
-              label="Instructions"
-              value={instructions}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setInstructions(e.target.value)
-              }
-              placeholder="Detailed instructions for students (optional)"
-              rows={4}
-            />
+            <div className="mb-4">
+              <Textarea
+                label="Instructions"
+                value={instructions}
+                onChange={(e) => setInstructions(e.target.value)}
+                placeholder="Detailed instructions for students"
+                rows={5}
+              />
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="mb-4">
               <Input
                 label="Points"
                 type="number"
-                value={points}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setPoints(parseInt(e.target.value) || 0)
-                }
+                value={points.toString()}
+                onChange={(e) => setPoints(Number(e.target.value))}
                 min={0}
-                required
-              />
-
-              <Input
-                label="Due Date"
-                type="datetime-local"
-                value={dueDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setDueDate(e.target.value)
-                }
-                required
+                max={1000}
               />
             </div>
 
-            <FileUpload
-              label="Attachment (Optional)"
-              onChange={handleFileChange}
-              accept=".pdf,.docx,.ppt,.pptx,.jpg,.jpeg,.png"
-            />
-
-            {file && (
-              <div className="bg-gray-50 p-3 rounded-md">
-                <p className="text-sm font-medium">{file.name}</p>
-                <p className="text-xs text-gray-500">
-                  {(file.size / 1024 / 1024).toFixed(2)} MB • {file.type}
-                </p>
-              </div>
-            )}
-
-            <div className="flex items-center space-x-2 mt-2">
-              <input
-                type="checkbox"
-                id="draft"
-                checked={isDraft}
-                onChange={(e) => setIsDraft(e.target.checked)}
-                className="rounded border-gray-300 text-primary focus:ring-primary"
-              />
-              <label
-                htmlFor="draft"
-                className="text-sm text-gray-700"
-              >
-                Save as draft (won't be visible to students)
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Due Date
               </label>
+              <input
+                type="datetime-local"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
             </div>
 
-            <div className="flex justify-end space-x-2 pt-4">
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Attachment
+              </label>
+              <FileUpload
+                onChange={handleFileChange}
+                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.zip"
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3 pt-4">
               <Button
                 type="button"
                 variant="outline"
@@ -330,10 +198,20 @@ const AssignmentCreateModal: React.FC<AssignmentCreateModalProps> = ({
                 Cancel
               </Button>
               <Button
-                type="submit"
-                loading={loading}
+                type="button"
+                variant="outline"
+                onClick={(e) => handleSubmit(e, true)}
+                disabled={loading}
               >
-                {isDraft ? "Save Draft" : "Create Assignment"}
+                Save as Draft
+              </Button>
+              <Button
+                type="button"
+                onClick={(e) => handleSubmit(e, false)}
+                loading={loading}
+                disabled={loading}
+              >
+                Create Assignment
               </Button>
             </div>
           </form>
