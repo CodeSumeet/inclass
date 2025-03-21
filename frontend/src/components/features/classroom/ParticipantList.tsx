@@ -63,27 +63,6 @@ const ParticipantList: React.FC<ParticipantListProps> = ({
     toast.success("Class code copied to clipboard!");
   };
 
-  const handleInvite = async () => {
-    if (!inviteEmail.trim() || !inviteEmail.includes("@")) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-
-    setInviting(true);
-    try {
-      await API.post(`/classrooms/${classroomId}/invite`, {
-        email: inviteEmail,
-      });
-      toast.success(`Invitation sent to ${inviteEmail}`);
-      setInviteEmail("");
-    } catch (error) {
-      console.error("Error inviting user:", error);
-      toast.error("Failed to send invitation. Please try again.");
-    } finally {
-      setInviting(false);
-    }
-  };
-
   const filteredParticipants = {
     teacher: participants.teacher,
     students: participants.students.filter(
@@ -134,7 +113,7 @@ const ParticipantList: React.FC<ParticipantListProps> = ({
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+        <div className="flex items-center flex-col sm:flex-row gap-3 w-full md:w-auto">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
@@ -157,37 +136,10 @@ const ParticipantList: React.FC<ParticipantListProps> = ({
               >
                 <Copy className="h-4 w-4 mr-2" /> Class Code: {classCode}
               </Button>
-              <Button className="whitespace-nowrap">
-                <UserPlus className="h-4 w-4 mr-2" /> Invite
-              </Button>
             </div>
           )}
         </div>
       </div>
-
-      {isTeacher && (
-        <Card className="p-4 mb-6">
-          <h3 className="font-medium mb-3">Invite Students</h3>
-          <div className="flex gap-2">
-            <Input
-              type="email"
-              placeholder="Enter email address"
-              value={inviteEmail}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setInviteEmail(e.target.value)
-              }
-              className="flex-grow"
-            />
-            <Button
-              onClick={handleInvite}
-              loading={inviting}
-              disabled={inviting || !inviteEmail.trim()}
-            >
-              Send Invite
-            </Button>
-          </div>
-        </Card>
-      )}
 
       <Card className="overflow-hidden">
         <div className="bg-gray-50 p-4 border-b">

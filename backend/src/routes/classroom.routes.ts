@@ -62,14 +62,12 @@ router.delete(
   MaterialController.deleteMaterial
 );
 
-// Get user role in a classroom
 router.get(
   "/:classroomId/role",
   authenticate,
   ClassroomController.getUserRoleInClassroom
 );
 
-// Get classroom assignments
 router.get(
   "/:classroomId/assignments",
   authenticate,

@@ -4,11 +4,11 @@ import * as MaterialService from "../services/material.service";
 
 export const createMaterial = asyncHandler(
   async (req: Request, res: Response) => {
-    const { title, description, type, url, fileSize, fileType, classroomId } =
-      req.body;
-    const createdById = req.user?.userId;
+    const { classroomId } = req.params;
+    const { title, description, type, url, fileSize, fileType } = req.body;
+    const userId = req.user?.userId;
 
-    if (!createdById) {
+    if (!userId) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
@@ -21,12 +21,11 @@ export const createMaterial = asyncHandler(
         fileSize,
         fileType,
         classroomId,
-        createdById,
       },
-      createdById
+      userId
     );
 
-    res.status(201).json(material);
+    res.status(200).json(material);
   }
 );
 

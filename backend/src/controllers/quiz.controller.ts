@@ -32,6 +32,7 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
     dueDate,
     classroomId,
     isPublished,
+    questions = [], // Add default empty array for questions
   } = req.body;
   const userId = req.user?.userId;
 
@@ -47,6 +48,7 @@ export const createQuiz = asyncHandler(async (req: Request, res: Response) => {
     dueDate: dueDate ? new Date(dueDate) : undefined,
     classroomId,
     isPublished,
+    questions, // Pass the questions array to the service
   });
 
   res.status(201).json(quiz);

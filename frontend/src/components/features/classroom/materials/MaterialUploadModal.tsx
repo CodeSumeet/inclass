@@ -76,16 +76,17 @@ const MaterialUploadModal: React.FC<MaterialUploadModalProps> = ({
       console.log("Upload result:", uploadResult);
 
       // Create material record in database
-      await API.post(`/classrooms/${classroomId}/materials`, {
+      const res = await API.post(`/classrooms/${classroomId}/materials`, {
         title,
         description,
         type: materialType,
         url: uploadResult.secure_url,
-        publicId: uploadResult.public_id,
         fileSize: file.size,
         fileType: file.type,
         classroomId,
       });
+
+      console.log("Material uploaded successfully!", res);
 
       toast.success("Material uploaded successfully!");
       onMaterialUploaded();

@@ -1,15 +1,14 @@
 import prisma from "../config/db";
-import { MaterialType } from "@prisma/client"; // Import the MaterialType enum
+import { sendMaterialEmail } from "./email.service";
 
 interface CreateMaterialDto {
   title: string;
   description?: string;
-  type: MaterialType;
+  type: string;
   url: string;
   fileSize?: number;
   fileType?: string;
   classroomId: string;
-  createdById: string;
 }
 
 export const createMaterial = async (
@@ -19,45 +18,57 @@ export const createMaterial = async (
   const { title, description, type, url, fileSize, fileType, classroomId } =
     createMaterialDto;
 
-  // Verify the user has access to this classroom
-  const classroom = await prisma.classroom.findUnique({
-    where: { id: classroomId },
-    include: {
-      enrollments: {
-        where: { userId },
+  try {
+    const classroom = await prisma.classroom.findUnique({
+      where: { id: classroomId },
+    });
+
+    if (!classroom) {
+      throw new Error("Classroom not found");
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { userId },
+      select: {
+        firstName: true,
+        lastName: true,
       },
-    },
-  });
+    });
 
-  if (!classroom) {
-    throw new Error("Classroom not found");
-  }
+    if (!user) {
+      throw new Error("User not found");
+    }
 
-  // Check if user is owner or enrolled
-  const isOwner = classroom.ownerId === userId;
-  const isEnrolled = classroom.enrollments.length > 0;
+    const material = await prisma.material.create({
+      data: {
+        title,
+        description,
+        type,
+        url,
+        fileSize: fileSize || undefined,
+        fileType: fileType || undefined,
+        classroomId,
+        createdById: userId,
+      },
+    });
 
-  if (!isOwner && !isEnrolled) {
-    throw new Error(
-      "You don't have permission to add materials to this classroom"
-    );
-  }
-
-  // Create the material
-  const material = await prisma.material.create({
-    data: {
-      title,
-      description,
-      type,
-      url,
-      fileSize,
-      fileType,
+    sendMaterialEmail(
       classroomId,
-      createdById: userId,
-    },
-  });
+      material.id,
+      title,
+      description || "",
+      type,
+      {
+        firstName: user.firstName,
+        lastName: user.lastName,
+      }
+    ).catch((err) => console.error("Failed to send material emails:", err));
 
-  return material;
+    return material;
+  } catch (error) {
+    console.error("Error creating material:", error);
+    throw error;
+  }
 };
 
 export const getClassroomMaterials = async (classroomId: string) => {
@@ -66,7 +77,6 @@ export const getClassroomMaterials = async (classroomId: string) => {
     orderBy: { createdAt: "desc" },
     include: {
       createdBy: {
-        // Ensure this is correctly referenced
         select: {
           userId: true,
           firstName: true,
@@ -81,7 +91,6 @@ export const getClassroomMaterials = async (classroomId: string) => {
 };
 
 export const deleteMaterial = async (materialId: string, userId: string) => {
-  // Find the material
   const material = await prisma.material.findUnique({
     where: { id: materialId },
     include: {
@@ -93,7 +102,6 @@ export const deleteMaterial = async (materialId: string, userId: string) => {
     throw new Error("Material not found");
   }
 
-  // Check if user is the creator of the material or the classroom owner
   if (
     material.createdById !== userId &&
     material.classroom.ownerId !== userId
@@ -101,7 +109,6 @@ export const deleteMaterial = async (materialId: string, userId: string) => {
     throw new Error("Unauthorized to delete this material");
   }
 
-  // Delete the material
   return prisma.material.delete({
     where: { id: materialId },
   });

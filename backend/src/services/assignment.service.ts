@@ -1,5 +1,6 @@
 import prisma from "../config/db";
 import { SubmissionStatus } from "../types/assignment.types";
+import { sendAssignmentEmail } from "./email.service";
 
 // Assignment Services
 export const getClassroomAssignments = async (classroomId: string) => {
@@ -55,6 +56,19 @@ export const createAssignment = async (
     throw new Error("Classroom not found");
   }
 
+  // Get user details for email
+  const user = await prisma.user.findUnique({
+    where: { userId },
+    select: {
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
   if (classroom.ownerId !== userId) {
     // Check if user is a teacher in the classroom
     const enrollment = await prisma.enrollment.findFirst({
@@ -71,7 +85,7 @@ export const createAssignment = async (
   }
 
   // Use a transaction to ensure both assignment and attachments are created together
-  return prisma.$transaction(async (tx) => {
+  const assignment = await prisma.$transaction(async (tx) => {
     // Create the assignment
     const assignment = await tx.assignment.create({
       data: {
@@ -111,6 +125,21 @@ export const createAssignment = async (
       },
     });
   });
+
+  // Only send emails if the assignment is active
+  if (assignment && assignment.status === "ACTIVE") {
+    // Send email notifications to students
+    sendAssignmentEmail(
+      data.classroomId,
+      assignment.id,
+      data.title,
+      data.description,
+      data.dueDate || null,
+      { firstName: user.firstName, lastName: user.lastName }
+    ).catch((err) => console.error("Failed to send assignment emails:", err));
+  }
+
+  return assignment;
 };
 
 export const updateAssignment = async (

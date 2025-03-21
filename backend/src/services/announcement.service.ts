@@ -1,4 +1,5 @@
 import prisma from "../config/db";
+import { sendAnnouncementEmail } from "./email.service";
 
 export const createAnnouncement = async (
   classroomId: string,
@@ -12,6 +13,19 @@ export const createAnnouncement = async (
 
   if (!classroom) {
     throw new Error("Classroom not found");
+  }
+
+  // Get user details for email
+  const user = await prisma.user.findUnique({
+    where: { userId: createdById },
+    select: {
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
   }
 
   // Create the announcement
@@ -32,6 +46,12 @@ export const createAnnouncement = async (
       },
     },
   });
+
+  // Send email notifications to students
+  sendAnnouncementEmail(classroomId, content, {
+    firstName: user.firstName,
+    lastName: user.lastName,
+  }).catch((err) => console.error("Failed to send announcement emails:", err));
 
   // Format the response to match frontend expectations
   return {

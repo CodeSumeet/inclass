@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/common/Button/Button";
-import { Video, Clock, Users } from "lucide-react";
+import { Video } from "lucide-react";
 import { Card } from "@/components";
 import {
   createMeeting,
@@ -26,7 +26,7 @@ const MeetingControls: React.FC<MeetingControlsProps> = ({
   isTeacher,
 }) => {
   const navigate = useNavigate();
-  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [activeMeeting, setActiveMeeting] = useState<Meeting | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
 
@@ -35,7 +35,8 @@ const MeetingControls: React.FC<MeetingControlsProps> = ({
       try {
         setLoading(true);
         const data = await getClassroomMeetings(classroomId);
-        setMeetings(data);
+        const active = data.find((m: any) => m.status === "ACTIVE") || null;
+        setActiveMeeting(active);
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch meetings:", err);
@@ -44,6 +45,11 @@ const MeetingControls: React.FC<MeetingControlsProps> = ({
     };
 
     fetchMeetings();
+
+    // Set up polling to check for active meetings every 30 seconds
+    const intervalId = setInterval(fetchMeetings, 30000);
+
+    return () => clearInterval(intervalId);
   }, [classroomId]);
 
   const handleCreateMeeting = async () => {
@@ -62,17 +68,27 @@ const MeetingControls: React.FC<MeetingControlsProps> = ({
     navigate(`/meeting/${meetingId}`);
   };
 
-  const activeMeeting = meetings.find((m) => m.status === "ACTIVE");
+  if (loading) {
+    return (
+      <Card className="p-6 mb-6 flex justify-center items-center h-20">
+        <div className="animate-spin rounded-full h-6 w-6 border-t-2 border-b-2 border-primary"></div>
+      </Card>
+    );
+  }
 
-  return (
-    <Card className="p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold flex items-center">
-          <Video className="mr-2 h-5 w-5 text-primary" />
-          Video Meetings
-        </h2>
+  if (!activeMeeting) {
+    if (!isTeacher) {
+      return null; // Don't show anything for students if no active meeting
+    }
 
-        {isTeacher && !activeMeeting && (
+    return (
+      <Card className="p-6 mb-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold flex items-center">
+            <Video className="mr-2 h-5 w-5 text-primary" />
+            Video Meeting
+          </h2>
+
           <Button
             onClick={handleCreateMeeting}
             disabled={creating}
@@ -80,84 +96,31 @@ const MeetingControls: React.FC<MeetingControlsProps> = ({
           >
             {creating ? "Creating..." : "Start New Meeting"}
           </Button>
-        )}
-
-        {activeMeeting && (
-          <Button
-            onClick={() => handleJoinMeeting(activeMeeting.id)}
-            className="bg-green-600 text-white"
-          >
-            Join Active Meeting
-          </Button>
-        )}
-      </div>
-
-      {loading ? (
-        <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
         </div>
-      ) : meetings.length > 0 ? (
-        <div className="space-y-4">
-          <h3 className="text-sm font-medium text-gray-500">Recent Meetings</h3>
-          <div className="divide-y divide-gray-200">
-            {meetings.slice(0, 5).map((meeting) => (
-              <div
-                key={meeting.id}
-                className="py-3 flex justify-between items-center"
-              >
-                <div>
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 text-gray-400 mr-2" />
-                    <span className="text-sm">
-                      {new Date(meeting.startTime).toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="mt-1 flex items-center">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        meeting.status === "ACTIVE"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {meeting.status}
-                    </span>
-                    {meeting.endTime && (
-                      <span className="text-xs text-gray-500 ml-2">
-                        Ended: {new Date(meeting.endTime).toLocaleTimeString()}
-                      </span>
-                    )}
-                  </div>
-                </div>
+      </Card>
+    );
+  }
 
-                {meeting.status === "ACTIVE" && (
-                  <Button
-                    onClick={() => handleJoinMeeting(meeting.id)}
-                    className="bg-green-600 text-white text-sm px-3 py-1"
-                  >
-                    Join
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="text-center py-6">
-          <p className="text-gray-500">
-            No meetings have been held in this classroom yet.
+  return (
+    <Card className="p-6 mb-6 bg-green-50 border-green-200">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold flex items-center text-green-800">
+            <Video className="mr-2 h-5 w-5 text-green-600" />
+            Active Meeting
+          </h2>
+          <p className="text-sm text-green-700 mt-1">
+            A meeting is currently in progress
           </p>
-          {isTeacher && (
-            <Button
-              onClick={handleCreateMeeting}
-              className="mt-4 bg-primary text-white"
-              disabled={creating}
-            >
-              {creating ? "Creating..." : "Start First Meeting"}
-            </Button>
-          )}
         </div>
-      )}
+
+        <Button
+          onClick={() => handleJoinMeeting(activeMeeting.id)}
+          className="bg-green-600 hover:bg-green-700 text-white"
+        >
+          Join Meeting
+        </Button>
+      </div>
     </Card>
   );
 };

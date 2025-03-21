@@ -48,5 +48,5 @@ export const uploadMaterial = async (
 };
 
 export const deleteMaterial = async (materialId: string): Promise<void> => {
-  await API.delete(`/materials/${materialId}`);
+  await API.delete(`/classrooms/materials/${materialId}`);
 };

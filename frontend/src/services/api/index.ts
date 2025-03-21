@@ -28,3 +28,6 @@ export * from "./auth";
 export * from "./user";
 export * from "./classroom";
 export * from "./announcement";
+export * from "./material";
+export * from "./assignment";
+export * from "./quiz";

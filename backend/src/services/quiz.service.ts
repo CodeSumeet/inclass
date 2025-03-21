@@ -1,5 +1,6 @@
 import prisma from "../config/db";
 import { QuestionType } from "../types/quiz.types";
+import { sendQuizEmail } from "./email.service";
 
 // Quiz Services
 export const getClassroomQuizzes = async (classroomId: string) => {
@@ -44,6 +45,17 @@ export const createQuiz = async (
     dueDate?: Date;
     classroomId: string;
     isPublished?: boolean;
+    questions: Array<{
+      text: string;
+      type: string;
+      points: number;
+      orderIndex: number;
+      options: Array<{
+        text: string;
+        isCorrect: boolean;
+        orderIndex: number;
+      }>;
+    }>;
   }
 ) => {
   // Check if user is the owner of the classroom
@@ -53,6 +65,19 @@ export const createQuiz = async (
 
   if (!classroom) {
     throw new Error("Classroom not found");
+  }
+
+  // Get user details for email
+  const user = await prisma.user.findUnique({
+    where: { userId },
+    select: {
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
   }
 
   if (classroom.ownerId !== userId) {
@@ -70,17 +95,131 @@ export const createQuiz = async (
     }
   }
 
-  return prisma.quiz.create({
+  const quiz = await prisma.quiz.create({
     data: {
       title: data.title,
-      description: data.description,
-      instructions: data.instructions,
+      description: data.description || "",
+      instructions: data.instructions || "",
       timeLimit: data.timeLimit,
       dueDate: data.dueDate,
       classroomId: data.classroomId,
       isPublished: data.isPublished || false,
+      questions: {
+        create: data.questions.map((q) => ({
+          questionText: q.text,
+          questionType: q.type as QuestionType,
+          points: q.points,
+          orderIndex: q.orderIndex,
+          options: {
+            create: q.options.map((o) => ({
+              optionText: o.text,
+              isCorrect: o.isCorrect,
+              orderIndex: o.orderIndex,
+            })),
+          },
+        })),
+      },
+    },
+    include: {
+      questions: {
+        include: {
+          options: true,
+        },
+        orderBy: {
+          orderIndex: "asc",
+        },
+      },
     },
   });
+
+  // Only send emails if the quiz is published
+  if (data.isPublished) {
+    // Send email notifications to students
+    sendQuizEmail(
+      data.classroomId,
+      quiz.quizId,
+      data.title,
+      data.description || "",
+      data.dueDate || null,
+      { firstName: user.firstName, lastName: user.lastName }
+    ).catch((err) => console.error("Failed to send quiz emails:", err));
+  }
+
+  return quiz;
+};
+
+// Update the publishQuiz function
+export const publishQuiz = async (userId: string, quizId: string) => {
+  // Check if quiz exists
+  const quiz = await prisma.quiz.findUnique({
+    where: { quizId },
+    include: {
+      classroom: true,
+    },
+  });
+
+  if (!quiz) {
+    throw new Error("Quiz not found");
+  }
+
+  // Get user details for email
+  const user = await prisma.user.findUnique({
+    where: { userId },
+    select: {
+      firstName: true,
+      lastName: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  // Check if user is the owner of the classroom
+  if (quiz.classroom.ownerId !== userId) {
+    // Check if user is a teacher in the classroom
+    const enrollment = await prisma.enrollment.findFirst({
+      where: {
+        userId,
+        classroomId: quiz.classroomId,
+        role: "TEACHER",
+      },
+    });
+
+    if (!enrollment) {
+      throw new Error("Only teachers can publish quizzes");
+    }
+  }
+
+  // Update the quiz
+  const updatedQuiz = await prisma.quiz.update({
+    where: { quizId },
+    data: {
+      isPublished: true,
+    },
+    include: {
+      questions: {
+        include: {
+          options: true,
+        },
+        orderBy: {
+          orderIndex: "asc",
+        },
+      },
+    },
+  });
+
+  // Send email notifications to students
+  sendQuizEmail(
+    quiz.classroomId,
+    quizId,
+    quiz.title,
+    quiz.description || "",
+    quiz.dueDate || null,
+    { firstName: user.firstName, lastName: user.lastName }
+  ).catch((err) => console.error("Failed to send quiz emails:", err));
+
+  return updatedQuiz;
 };
 
 export const updateQuiz = async (
