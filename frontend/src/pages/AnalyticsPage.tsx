@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuthStore } from "@/store/useAuthStore";
-import { Users, Award, Activity, User, FileText } from "lucide-react";
+import { Users, Award, User, FileText } from "lucide-react";
 import { Card } from "@/components";
 import {
   getClassroomAnalytics,
