@@ -1,8 +1,7 @@
 import { FC } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Menu, Settings, LogOut, User, Bell } from "lucide-react";
+import { Menu, LogOut, User } from "lucide-react";
 import { useAuthStore } from "@/store/useAuthStore";
-import { getAvatarUrl } from "@/utils/getAvatarUrl";
 import {
   Button,
   DropdownMenu,
@@ -45,15 +44,6 @@ const Header: FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 p-0"
-            onClick={() => navigate("/notifications")}
-          >
-            <Bell className="h-5 w-5" />
-          </Button>
-
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
